@@ -1,0 +1,360 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static '/assets/vendor_plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="box">
+        <div class="box-header with-border">
+            <h3 class="box-title">Quotation Attributes</h3>
+        </div>
+        <div class="box-body">
+            <div class="row">
+
+                <!-- LEFT COLUMN -->
+                <div class="col-md-6 col-12">
+                    <div class="form-group">
+                        <label>Type : </label>
+                        <div class="controls">
+                            <input type="text" value="{{ quotation_type }}" class="form-control" disabled />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Template : </label>
+                        <div class="controls">
+                            <input type="text" value="{{ template_name }}" class="form-control" disabled />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ref. No : </label>
+                        <div class="controls">
+                            <input type="text" class="form-control" value="{{ quotation_number }}" disabled/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Name : </label>
+                        <div class="controls">
+                            <input type="text" class="form-control" value="{{ quotation_name }}" disabled/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Customer : </label>
+                        <div class="controls">
+                            <input type="text" class="form-control" value="{{ customer_name }}" disabled/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- /.col -->
+                <div class="col-md-6 col-12">
+                    <div class="form-group">
+                        <label>Approval Due Date : </label>
+                        <div class="controls">
+                            <input type="text" class="form-control" disabled value="{{ int_due_date }}"/>
+                        </div>
+                    </div>
+                    <!-- /.form-group -->
+                    <div class="form-group">
+                        <label>Quotation Due Date : </label>
+                        <div class="controls">
+                            <input type="text" class="form-control" disabled value="{{ quot_due_date }}"/>
+                        </div>
+                    </div>
+                    <!-- /.form-group -->
+
+                    <div class="form-group">
+                        <label>Currency : </label>
+                        <div class="controls">
+                            <input type="text" class="form-control" disabled value="{{ currency_name}}"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Revision Number : </label>
+                        <div class="controls">
+                            <input type="text" class="form-control" value="R-{{ revision_number }}" readonly/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Status : </label>
+                        <div class="controls">
+                            <input type="text" class="form-control" value="{{ quotation_status }}" readonly/>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+    </div>
+
+    {% if air_freight_contents %}
+    <div class="box" id="air_freight_item_box">
+        <div class="box-header with-border">
+            <h3 class="box-title" id="title_air_freight_item">Air Freight</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="table_list_air_freight">
+                        <thead class="bg-secondary"><tr>
+                            <th>Dest / Origin</th>
+                            <th>Rates Min</th>
+                            <th>Rates -45Kg</th>
+                            <th>Rates +45Kg</th>
+                            <th>Rates +100Kgs</th>
+                            <th>Rates +300Kg</th>
+                            <th>Rates +500Kg</th>
+                            <th>Rates +1000Kg</th>
+                            <th>FSC / Kg</th>
+                            <th>SSC / Kg</th>
+                            <th>Route</th>
+                            <th>Service</th>
+                        </tr></thead>
+                        <tbody>
+                        {% for airfreight_content in air_freight_contents %}
+                            <tr>
+                                <td>{{ airfreight_content.dest_or_origin }}</td>
+                                <td>{{ airfreight_content.rates_min | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.rates_min_45 | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.rates_plus_45 | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.rates_plus_100 | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.rates_plus_300 | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.rates_plus_500 | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.rates_plus_1000 | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.fsc }}</td>
+                                <td>{{ airfreight_content.ssc }}</td>
+                                <td>{{ airfreight_content.route }}</td>
+                                <td>{{ airfreight_content.service }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody></table>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+    </div>
+    {% endif %}
+
+    {% if quotation_type_num == 1 %}
+    <div class="box" id="air_freight_related_cost_box">
+        <div class="box-header with-border">
+            <h3 class="box-title">Other Cost Related Air Freight</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-12 col-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="table_air_freight_other_cost">
+                            <thead class="bg-secondary"><tr>
+                                <th>Description</th>
+                                <th>Rates</th>
+                            </tr></thead>
+                            <tbody>
+                            {% for other_cost_content in air_freight_other_cost_contents %}
+                            <tr>
+                                <td>{{ other_cost_content.description }}</td>
+                                <td>{{ other_cost_content.rates | floatformat:0 | intcomma }}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody></table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if quotation_type_num == 2 %}
+    <div class="box" id="export_handling_charge_box">
+        <div class="box-header with-border">
+            <h3 class="box-title">Export Handling Charges</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-12 col-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="table_export_item">
+                            <thead class="bg-secondary"><tr>
+                                <th style="width: 50px;">No. </th>
+                                <th>Description</th>
+                                <th>Rates</th>
+                                <th>Information</th>
+                            </tr></thead>
+                            <tbody>
+                            {% for export_content in export_contents %}
+                                <tr id="default_export_item">
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ export_content.description }}</td>
+                                    <td>{% if export_content.rates %} {{export_content.rates | floatformat:0 | intcomma}} {% else %} &nbsp; {% endif %}</td>
+                                    <td>{% if export_content.info %} {{export_content.info}} {% else %} &nbsp; {% endif %} </td>
+                                </tr>
+                                {% for detail in export_content.quotationexportimporthandlingdetail_set.all %}
+                                    <tr id="default_export_child_item">
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp; &nbsp; {{ detail.description }}</td>
+                                        <td>{{ detail.rates | floatformat:0 | intcomma}}</td>
+                                        <td>{{ detail.info }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                            </tbody></table>
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+    </div>
+    {% endif %}
+
+    {% if quotation_type_num == 3 %}
+    <div class="box" id="import_handling_charge_box">
+        <div class="box-header with-border">
+            <h3 class="box-title">Import Handling Charges</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-12 col-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="table_import_item">
+                            <thead class="bg-secondary"><tr>
+                                <th style="width: 5px;">No. </th>
+                                <th>Description</th>
+                                <th>Rates</th>
+                                <th>Information</th>
+                            </tr></thead>
+                            <tbody>
+                            {% for import_content in import_contents %}
+                                <tr id="default_import_item">
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ import_content.description }}</td>
+                                    <td>{% if import_content.rates %} {{import_content.rates | floatformat:0 | intcomma}} {% else %} &nbsp; {% endif %}</td>
+                                    <td>{% if import_content.info %} {{export_content.info}} {% else %} &nbsp; {% endif %} </td>
+                                </tr>
+                                {% for detail in import_content.quotationexportimporthandlingdetail_set.all %}
+                                    <tr id="default_import_child_item">
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp; &nbsp; {{ detail.description }}</td>
+                                        <td>{{ detail.rates | floatformat:0 | intcomma}}</td>
+                                        <td>{{ detail.info }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                            </tbody></table>
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+
+        <div class="col-lg-6 col-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Quotation Recipient</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="table-responsive">
+                                <table class="table" id="table_list_contact">
+                                    <thead class="bg-secondary"><tr>
+                                        <th>Contact</th>
+                                        <th>Email</th>
+                                        <th>Phone Number</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for contact in recipient_list %}
+                                    <tr>
+                                        <td>{{ contact.customer_contact.user.first_name }} {{ contact.customer_contact.user.last_name }}</td>
+                                        <td>{{ contact.customer_contact.user.email }}</td>
+                                        <td>{{ contact.customer_contact.phone_number }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody></table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Supervisor List</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="table-responsive">
+                                <table class="table" id="table_list_supervisor">
+                                    <thead class="bg-secondary"><tr>
+                                        <th>Supervisor Name</th>
+                                        <th>Email</th>
+                                    </tr></thead>
+                                    <tbody>
+                                    {% for supervisor in supervisor_list %}
+                                    <tr>
+                                        <td>{{ supervisor.user.first_name | capfirst}} {{ supervisor.user.last_name | capfirst }}</td>
+                                        <td>{{ supervisor.user.email}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="box">
+        <!-- /.box-body -->
+        <div class="box-footer">
+            <div class="pull-left">
+                <a href="{% url 'quotation_history' quotation_id=quotation_id %}" class="btn btn-red">
+                    <i class="fa fa-chevron-left"></i>
+                    Back
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

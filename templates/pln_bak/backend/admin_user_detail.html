@@ -1,0 +1,250 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load  static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/bootstrap-daterangepicker/daterangepicker.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_plugins/iCheck/all.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_plugins/timepicker/bootstrap-timepicker.min.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/select2/dist/css/select2.min.css' %}">
+{% endblock %}
+
+{% block javascript %}
+
+    <script src="{% static '/assets/vendor_components/select2/dist/js/select2.full.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/input-mask/jquery.inputmask.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/input-mask/jquery.inputmask.date.extensions.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/input-mask/jquery.inputmask.extensions.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/moment/min/moment.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-daterangepicker/daterangepicker.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/timepicker/bootstrap-timepicker.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/iCheck/icheck.min.js' %}"></script>
+    <script src="{% static 'js/pages/advanced-form-element.js'%}"></script>
+    <script>
+        let base_url = "{{ backend_url }}"
+        let role = "{{user.roleuser.role_group.id}}"
+
+        $(document).ready(function(){
+            if (role == 2) {
+                $('#group').prop("disabled", true);
+                $('#group-div').prop("hidden", true);
+            }
+            $('#role').change(function () {
+                var val_role = $(this).val();
+                if (val_role==2){
+                    $('#group').prop("disabled", true);
+                    $('#group-div').prop("hidden", true);
+                }
+                else{
+                    $('#group').prop("disabled", false);
+                    $('#group-div').prop("hidden", false);
+                }
+
+                $.ajax({
+                    url: base_url + "api/group?role=" + val_role,
+                    dataType: "json",
+                    beforeSend: function(){
+                        $("#group").empty();
+                    }
+                }).done(function( data ) {
+                    var total_data = data.length;
+                    if(total_data > 0 ){
+                        $.map( data, function( item ) {
+                            $('#group').append('<option value="'+item.id+'">' + item.name + '</option>');
+                        });
+                    }else{
+                        $('#group').append('<option value="">Group tidak ditemukan</option>');
+                    }
+                    $("#group").trigger("chosen:updated");
+                    $("#group").trigger("liszt:updated");
+                }); 
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% if request.COOKIES.success_msg %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.success_msg }} </div>
+    {% endif %}
+
+    {% if request.COOKIES.error_msg %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.error_msg }} </div>
+    {% endif %}
+
+    <div class="box box-default">
+        <!-- /.box-header -->
+        <div class="box-body">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active show" data-toggle="tab" href="#profile" role="tab" aria-selected="true">
+                            <span class="hidden-sm-up">
+                                <i class="ion-home"></i>
+                            </span>
+                        <span class="hidden-xs-down">Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#setting" role="tab" aria-selected="false">
+                            <span class="hidden-sm-up">
+                                <i class="ion-person"></i>
+                            </span>
+                        <span class="hidden-xs-down">Settings</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content tabcontent-border">
+                <div class="tab-pane active show" id="profile" role="tabpanel">
+                    <div class="pad">
+                        <h3>Profile</h3>
+
+                        <div id="navpills-1" class="tab-pane active">
+                            <div class="row">
+
+                                <div class="col-md-4"> <img src="{{ user.pln_user.profile_pict_url }}" class="img-fluid" alt=""> </div>
+                                <div class="col-md-8">
+                                    <form enctype="multipart/form-data" method="post">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label>First Name<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="text" value="{{ user.first_name }}" name="first_name" class="form-control"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Last Name<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="text" value="{{ user.last_name }}" name="last_name" class="form-control"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Email<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="text" value="{{ user.email }}" name="email" class="form-control"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Profile Picture : </label>
+                                            <div class="controls">
+                                                 <input type="file" name="profile_pict" class="form-control" aria-invalid="false">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Gender<span class="required_field">*</span> : </label>
+                                            <select class="form-control select2 w-p100" name="gender">
+                                                <option value="0">--- Gender --- </option>
+                                                <option value="male" {% if user.pln_user.sex == 'male' %} selected {% endif %}>Male</option>
+                                                <option value="female" {% if user.pln_user.sex == 'female' %} selected {% endif %}>Female</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Address<span class="required_field">*</span> : </label>
+                                            <textarea class="form-control" rows="3" placeholder="Enter Address ..." name="address">{{ user.pln_user.address }}</textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Phone Number : </label>
+                                            <div class="controls">
+                                                <input type="text" name="phone" value="{{ user.pln_user.phone_number }}" class="form-control"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Email Signature<span class="required_field">*</span> : </label>
+                                            <textarea class="form-control" rows="3" placeholder="Enter Email Signature ..." name="email_signature">{{ user.pln_user.email_signature }}
+                                            </textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Role<span class="required_field">*</span> : </label>
+                                            <select class="form-control select2 w-p100" name="role" id="role">
+                                                <option value="0">--- Role --- </option>
+                                                {% for role in roles %}
+                                                    <option value="{{ role.id }}" {% if user.roleuser.role_group.id == role.id %} selected {% endif %}>
+                                                        {{ role.description }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div id="group-div">
+                                            <div class="form-group">
+                                                <label>Group<span class="required_field">*</span> : </label>
+                                                <select class="form-control select2 w-p100" name="group" id="group" required>
+                                                    <option value="">--- Group --- </option>
+                                                    {% for group in groups %}
+                                                        <option value="{{ group.id }}" {% if user.group_pln.group_id == group.id %} selected {% endif %}>{{ group.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <a href="{% url 'user_list' %}" class="btn btn-red">
+                                                <i class="fa  fa-ban"></i>
+                                                Cancel
+                                            </a>
+                                            <button type="submit" class="btn btn-info pull-right">
+                                                <i class="fa fa-floppy-o"></i>
+                                                Update
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- DELIMITER -->
+                <div class="tab-pane pad" id="setting" role="tabpanel">
+                    <div class="pad">
+                        <h3>Settings</h3>
+                        <ul class="list-unstyled">
+                            <li>
+                                Reset Password User :
+                                <a href="{% url 'user_reset_password' id=user.id %}" class="btn btn-warning" onclick="return confirm('Are you sure to reset password this user?'); ">
+                                    <i class="fa fa-repeat"></i>
+                                    Reset Password
+                                </a>
+                            </li>
+                            <li>&nbsp;</li>
+                            {%  if user.is_active %}
+                                <li>Deactivate User :
+                                   <a href="{% url 'user_manual_activation' id=user.id types='deactivate' %}" class="btn btn-danger" onclick="return confirm('Are you sure to deactivate this user?'); ">
+                                        <i class="fa fa-ban"></i>
+                                        Deactivate User
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li>Activate User :
+                                   <a href="{% url 'user_manual_activation' id=user.id types='activate' %}" class="btn btn-blue" onclick="return confirm('Are you sure to activate this user?'); ">
+                                        <i class="fa fa-check"></i>
+                                        Activate User
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                                <li>&nbsp;</li>
+                            <li>Delete User :
+                                <a href="{% url 'user_delete' id=user.id %}" class="btn btn-red" onclick="return confirm('Are you sure to delete this user?'); ">
+                                    <i class="fa fa-trash"></i>
+                                    Delete User
+                                </a>
+                            </li>
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+    </div>
+{% endblock %}

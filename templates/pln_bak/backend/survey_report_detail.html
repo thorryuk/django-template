@@ -1,0 +1,57 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load  static %}
+
+{% block javascript %}
+    <script src="{% static '/assets/vendor_components/jquery-ui/jquery-ui.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/DataTables-1.10.15/media/js/jquery.dataTables.min.js' %}"></script>
+    <script>
+        $(function () {
+            "use strict";
+            $('#survey_invitation_detail').DataTable()
+        })
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="box">
+        <div class="box-body">
+
+            <div class="col-md-12 col-lg-12">
+                  <div class="box">
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <div class="box-body">
+                            <div class="table-responsive">
+                              <table id="survey_invitation_detail" class="table table-bordered no-wrap" data-page-size="10">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Costumer</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in object_list %}
+                                        <tr>
+                                            <td>{{user.name}}</td>
+                                            <td>{{user.email}}</td>
+                                            <td>{{user.phone}}</td>
+                                            <td>{{user.costumer}}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.box-body -->
+                  </div>
+                  <!-- /.box -->
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

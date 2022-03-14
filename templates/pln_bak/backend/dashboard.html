@@ -1,0 +1,131 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load  static %}
+
+{% block javascript %}
+<script src="{% static '/assets/vendor_components/jquery-ui/jquery-ui.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script src="{% static '/assets/vendor_plugins/DataTables-1.10.15/media/js/jquery.dataTables.min.js' %}"></script>
+<!-- <script>
+    $(function () {
+        "use strict";
+
+        $('#quotationList').DataTable({
+            'paging'      : true,
+            'lengthChange': false,
+            'searching'   : false,
+            'autoWidth'   : false,
+            'processing': true,
+            'serverSide': true,
+            'pageLength': 5,
+            'ajax': "{% url 'quotation_dashboard_list_ajax' %}",
+            'ordering': false
+        });
+
+        $('#notifList').DataTable({
+            'paging'      : true,
+            'lengthChange': false,
+            'searching'   : false,
+            'autoWidth'   : false,
+            'processing': true,
+            'serverSide': true,
+            'pageLength': 5,
+            'ajax': "{% url 'notification_list' %}",
+            'ordering': false
+        });
+
+         $('#exchangeList').DataTable({
+            'paging'      : true,
+            'lengthChange': false,
+            'searching'   : false,
+            'autoWidth'   : false,
+            'processing': true,
+            'serverSide': true,
+            'pageLength': 5,
+            'ajax': "{% url 'dashboard_currency_history_list' %}",
+            'ordering': false
+        });
+
+    }); // End of use strict
+</script> -->
+{% endblock %}
+
+{% block content %}
+
+    <div class="box collapsed-box">
+        <div class="box-header with-border">
+            <h3 class="box-title">Jobs</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="table-responsive">
+                <table id="quotationList" class="table no-wrap">
+                    <thead>
+                    <tr class="bg-secondary">
+                        <th style="width: 120px">Ref. No</th>
+                        <th style="width: 120px">Type</th>
+                        <th style="width: 230px">Customer Name</th>
+                        <th style="width: 120px">Created Date</th>
+                        <th style="width: 120px">Approval Expired Date</th>
+                        <th style="width: 120px">Expired Date</th>
+                        <th style="width: 70px">Status</th>
+                        <th style="width: 60px">Action</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="box collapsed-box">
+        <div class="box-header with-border">
+            <h3 class="box-title">Notification</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+            </div>
+        </div>
+        <div class="box-body" style="display: none;">
+            <div class="table-responsive">
+                <table id="notifList" class="table no-wrap" data-page-size="10">
+                    <thead><tr>
+                        <th style="width: 10px">#</th>
+                        <th>Notif</th>
+                        <th>Status</th>
+                        <th style="width: 40px">Action</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Default box -->
+    <div class="box collapsed-box">
+        <div class="box-header with-border">
+            <h3 class="box-title">Today's Exchange Rate</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+            </div>
+        </div>
+        <div class="box-body" style="display: none;">
+            <div class="table-responsive">
+                <table id="exchangeList" class="table no-wrap" data-page-size="10">
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Currency</th>
+                        <th>Amount</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

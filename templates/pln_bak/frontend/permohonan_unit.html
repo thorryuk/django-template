@@ -1,0 +1,94 @@
+{% extends 'pln/frontend/layout/base_layout.html' %}
+
+{% load static %}
+
+
+{% block css %}
+    
+{% endblock %}
+
+
+{% block javascript %}
+{% if request.COOKIES.warning_msg %}
+    <script>
+        $( document ).ready(function() {
+            Dashmix.helpers('notify', {type: 'warning', align: 'center', message: '{{ request.COOKIES.warning_msg }}'});
+        });
+    </script>
+{% endif %}
+{% if request.COOKIES.success_msg %}
+    <script>
+        $( document ).ready(function() {
+            Dashmix.helpers('notify', {type: 'success', align: 'center', message: '{{ request.COOKIES.success_msg }}'});
+        });
+        console.log('{{ request.COOKIES.success_msg }}');
+    </script>
+{% endif %}
+{% if request.COOKIES.error_msg %}
+    <script>
+        $( document ).ready(function() {
+            Dashmix.helpers('notify', {type: 'danger', align: 'center', message: '{{ request.COOKIES.error_msg }}'});
+        });
+    </script>
+{% endif %}
+{% endblock %}
+
+
+{% block content %}    
+<!-- Hero -->
+<div class="bg-body-light">
+    <div class="content content-full">
+        <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+            <h1 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2">{{sub_title}}</h1>
+            <nav class="flex-sm-00-auto ml-sm-3" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">Unit</li>
+                    <li class="breadcrumb-item active" aria-current="page">Tambah</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+<!-- END Hero -->
+
+<!-- Page Content -->
+<div class="content">
+    <!-- Layouts -->
+    <div class="block block-rounded block-bordered">
+        <div class="block-header block-header-default">
+            <h3 class="block-title"></h3>
+        </div>
+        <div class="block-content">
+            <!-- Label on top Layout -->
+            <div class="row">
+                <div class="col-6">
+                    <p class="text-muted">
+                        Harap isi data menggunakan file excel dibawah ini.
+                    </p>
+                    <a class="btn btn-success" href="{% url 'download_excel' %}"><i class="fa fa-download"></i>&nbsp; Download Excel</a>
+                </div>
+                <div class="col-lg-6 col-xl-6">
+                    <!-- Form Labels on top - Default Style -->
+                    <form action="{% url 'detail_unit' id=permohonan.id %}" class="mb-5" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="kode_unit">Upload File <span class="text-danger">*</span></label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" data-toggle="custom-file-input" id="file_detail_unit" name="file_detail_unit" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                                <label class="custom-file-label" for="file_detail_unit">Choose file</label>
+                            </div>
+                        </div>
+                        <div class="form-group" style="float: right;">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                    <!-- END Form Labels on top - Default Style -->
+                </div>
+            </div>
+            <!-- END Label on top Layout -->
+        </div>
+    </div>
+    <!-- END Layouts -->
+</div>
+<!-- END Page Content -->
+{% endblock content %}

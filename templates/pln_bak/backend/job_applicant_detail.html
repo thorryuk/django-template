@@ -1,0 +1,560 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load  static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/select2/dist/css/select2.min.css' %}">
+    <style>
+    .text-biodata {
+        background-color: #00008B;
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 9px;
+    }
+    </style>
+{% endblock %}
+
+{% block javascript %}
+
+    <script src="{% static '/assets/vendor_components/select2/dist/js/select2.full.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/input-mask/jquery.inputmask.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/input-mask/jquery.inputmask.date.extensions.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/input-mask/jquery.inputmask.extensions.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/moment/min/moment.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-daterangepicker/daterangepicker.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/timepicker/bootstrap-timepicker.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/iCheck/icheck.min.js' %}"></script>
+    <script src="{% static 'js/pages/advanced-form-element.js'%}"></script>
+
+{% endblock %}
+
+{% block content %}
+    {% if request.COOKIES.success_msg %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.success_msg }} </div>
+    {% endif %}
+
+    {% if request.COOKIES.error_msg %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.error_msg }} </div>
+    {% endif %}
+
+    <div class="box box-default">
+        <!-- /.box-header -->
+        <div class="box-body">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                
+                {% if request.user.roleuser.role_group.name != 'departement' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'job_detail' id=job_id%}" role="tab" aria-selected="true">
+                    <span class="hidden-sm-up">
+                                <i class="ion-home"></i>
+                            </span>
+                    <span class="hidden-xs-down">Detail Master Job</span>
+                    </a>
+                </li>
+                {% endif %}
+                    
+                <li class="nav-item">
+                    <a class="nav-link active show" href="{% url 'job_applicant' id=job_id%}" aria-selected="true">
+                            <span class="hidden-sm-up">
+                                <i class="ion-person"></i>
+                            </span>
+                        <span class="hidden-xs-down">Job Applicant</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content tabcontent-border">
+                <div class="tab-pane active show" id="profile" role="tabpanel">
+                    <div class="pad">
+                        <div id="navpills-1" class="tab-pane active">
+                            <div class="card-user my-5">
+                                <h1>Data Pribadi</h1>                
+                                <div class="user-biodata">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4">
+                                            <h4 class="text-biodata">Biodata Diri</h4>
+                                            <table>
+                                                <tr>
+                                                    <td>No. KTP</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.no_ktp }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Nama Lengkap</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.user.first_name }} {{ applicant.user.last_name }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Tempat/tgl Lahir</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.place_of_birth }}, {{ applicant.date_of_birth }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Usia</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ age }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Jenis Kelamin</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        {% if applicant.sex == 'male' %}
+                                                            Laki-Laki
+                                                        {% else %}
+                                                            Perempuan
+                                                        {% endif %}                                                        
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Alamat</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.address }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Status Perkawinan</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ marital_status }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Email</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.user.email }}</td>
+                                                </tr>
+                                                <!-- <tr>
+                                                    <td>Hobby</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.hobby }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Organisasi</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.organization }}</td>
+                                                </tr> -->
+                                                <tr>
+                                                    <td>No. Telepon</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.phone_number }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>No. HandPhone</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.mobile_number }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>No. Jamsostek</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.no_jamsostek }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>No. BPJS</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.no_bpjs }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>No. NPWP</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.no_npwp }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>SIM</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    {% if applicant.type_sim == 'tidak_ada' %}
+                                                        <td>Tidak Punya SIM</td>
+                                                    {% else %}
+                                                        <td>SIM {{ applicant.type_sim }}</td>
+                                                    {% endif %}
+                                                </tr>
+                                                
+                                                {% if applicant.type_sim != 'tidak_ada' %}
+                                                <tr>
+                                                    <td>No. SIM</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.no_sim }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Masa Berlaku</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.validity_period_sim }}</td>
+                                                </tr>
+                                                {% endif %}
+                                                    
+                                                <tr>
+                                                    <td>Tinggi & Berat Badan </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.height }} Cm, {{ applicant.weight }} Kg</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                
+                                        <div class="col-md-6 mb-4">
+                                            <h4 class="text-biodata">Riwayat Pendidikan</h4>
+                                            <table>
+                                                <tr>
+                                                    <td>Jenjang Pendidikan</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ education.education_level.name }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Perguruan Tinggi / Sekolah</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ education.name }}</td>
+                                                </tr>                                                
+                                                <tr>
+                                                    <td>Fakultas</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ education.faculty }}</td>
+                                                </tr>                                                
+                                                <tr>
+                                                    <td>Jurusan / Program Studi</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ education.major }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Akreditasi</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ education.major_acreditation }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Gelar </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ education.degree }}</td>
+                                                </tr>                                                
+                                                <tr>
+                                                    <td>Tahun Masuk </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ education.year_in }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Tahun Keluar </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ education.year_out }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>IPK </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ education.gpa }}</td>
+                                                </tr>
+                                            </table>
+                                            <hr>
+                                            <h4 class="text-biodata">Pendidikan Non Formal & Skill</h4>
+                                            <table>
+                                                <tr>
+                                                    <td>Pendidikan Non Formal / Sertifikasi </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ non_formal.certification }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Peralatan & Software </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ non_formal.tools_software }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Kemampuan Bahasa Asing </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ non_formal.foreign_language }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Prestasi yang pernah di raih </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ non_formal.achievement }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Karya tulis yang pernah di buat </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ non_formal.papers }}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                
+                                        <div class="col-md-6 mb-4">
+                                            <h4 class="text-biodata">Pekerjaan Terakhir</h4>
+                                            <table>
+                                                <tr>
+                                                    <td>Nama Perusahaan </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ experience.company_name }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Periode (Lama Bekerja) </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ experience.periode }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Posisi</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ experience.position }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Garis Besar Jobdesc</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ experience.job_outline }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>THP yang di terima</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>Rp. {{ experience.thp }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Peralatan / Software yang digunakan</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ experience.tools_software }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Contoh kasus, Perubahan / Perbaikan yang pernah dibuat</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ experience.change }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Orang yang dapat mereferensikan</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ reference.nama.0 }} ({{reference.no_hp.0}})</td>
+                                                </tr>
+                                                {% if reference.nama.1 %}
+                                                <tr>
+                                                    <td></td>
+                                                    <td>&nbsp;&nbsp;</td>
+                                                    <td>{{ reference.nama.1 }} ({{reference.no_hp.1}})</td>
+                                                </tr>
+                                                {% endif %}
+                                                {% if reference.nama.2 %}
+                                                <tr>
+                                                    <td></td>
+                                                    <td>&nbsp;&nbsp;</td>
+                                                    <td>{{ reference.nama.2 }} ({{reference.no_hp.2}})</td>
+                                                </tr>
+                                                {% endif %}
+                                                <tr>
+                                                    <td>Total Lama Bekerja</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ applicant.work_experience }} Tahun</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                
+                                        <div class="col-md-6 mb-4">
+                                            <h4 class="text-biodata">File Pendukung</h4>
+                                            <table>
+                                                <tr>
+                                                    <td>KTP </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <a href="{% url 'download_data' files='ktp' id=applicant.user.id %}" target="_blank">
+                                                            {{ files.ktp }}
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>CV</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <a href="{% url 'download_data' files='cv' id=applicant.user.id %}" target="_blank">
+                                                            {{ files.cv }}
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Ijazah</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <a href="{% url 'download_data' files='ijazah' id=applicant.user.id %}" target="_blank">
+                                                            {{ files.ijazah }}
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>SIM</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <a href="{% url 'download_data' files='sim' id=applicant.user.id %}" target="_blank">
+                                                            {{ files.sim }}
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>SIMPER</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <a href="{% url 'download_data' files='simper' id=applicant.user.id %}" target="_blank">
+                                                            {{ files.simper }}
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>KK</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <a href="{% url 'download_data' files='kk' id=applicant.user.id %}" target="_blank">
+                                                            {{ files.kk }}
+                                                        </a>
+                                                    </td>
+                                                </tr><tr>
+                                                    <td>SKCK</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <a href="{% url 'download_data' files='skck' id=applicant.user.id %}" target="_blank">
+                                                            {{ files.skck }}
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Sertifikat</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <a href="{% url 'download_data' files='sertifikat' id=applicant.user.id %}" target="_blank">
+                                                            {{ files.sertifikat }}
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Lain-Lain</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <a href="{% url 'download_data' files='lain_lain' id=applicant.user.id %}" target="_blank">
+                                                            {{ files.lain_lain }}
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+
+                                        <div class="col-md-6 mb-4">
+                                            <h4 class="text-biodata">Data Pendukung</h4>
+                                            <table>
+                                                <tr>
+                                                    <td>Alasan Bergabung </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ job_apply.reason_to_join }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Perkiraan Mulai Bekerja</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ job_apply.start_working_at }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Posisi yang anda Lamar </td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>{{ job_apply.applied_position }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Gaji yang anda harapkan</td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>Rp {{ job_apply.expected_salary }}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                
+                                        <div class="col-md-6 mb-4">
+                                            <h4 class="text-biodata">Status lamaran</h4>
+                                            <table border="1" cellpadding="10" class="table table-bordered no-wrap" data-page-size="10">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Tanggal Proses</th>
+                                                        <th>Jabatan yang dituju</th>
+                                                        <th>Posisi yang dituju</th>
+                                                        <th>Penempatan</th>
+                                                        <th>Tahap/Proses Rekrutmen</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>#</td>
+                                                        <td>{{ job_apply.job.job_level }}</td>
+                                                        <td>{{ job_apply.job.position }}</td>
+                                                        <td>{{ job_apply.job.site.name }}</td>
+                                                        <td>
+                                                            {% if job_apply.job.status == 0 %}
+                                                                Waiting Approval
+                                                            {% elif job_apply.job.status == 1 %}
+                                                                Review by HR
+                                                            {% elif job_apply.job.status == 2 %}
+                                                                Interview (check your email)
+                                                            {% else %}
+                                                                Cancelled   
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <hr>
+                    <div class="pad">
+                        <div id="navpills-1" class="tab-pane active">
+                            <div class="card-user my-5">
+                                <h1>Pertanyaan Singkat</h1>
+                                <div class="user-biodata">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4">
+                                            <h4 class="text-biodata">Respon Pertanyaan Singkat</h4>
+                                            <table border="1" cellpadding="10" class="table table-bordered no-wrap" data-page-size="10">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Pertanyaan</th>
+                                                        <!-- <th>Jawaban</th> -->
+                                                        <th>Jawaban Pelamar</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for question in apq %}
+                                                    <tr>
+                                                        <td>
+                                                            {{ question.text }}
+                                                        </td>
+                                                        <td>
+                                                            {% for usr in aqr %}
+                                                                {% for ans in question.get_answer_options.all %}
+                                                                    {% if usr.answer_option.id == ans.id %}
+                                                                        {{ ans.answer }}
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endfor %}
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-md-6 mb-4">
+                                            <h4 class="text-biodata">Score Pelamar</h4>
+                                            <form action="" method="POST">
+                                                {% csrf_token %}
+                                                <div class="row">
+                                                    <div class="col-md-6 col-6">
+                                                        <div class="form-group">
+                                                            <div class="controls">
+                                                                <input type="number" min="0" name="user_score" id="user_score" class="form-control" autocomplete="off" value="{{ job_apply.score }}" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <button class="btn btn-blue pull-left">
+                                                            Submit
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.box-body -->
+    </div>
+{% endblock %}

@@ -1,0 +1,83 @@
+version: '2'
+
+services:
+  redis-nippon:
+    image: redis:3.2.4-alpine
+    command: redis-server --maxmemory 100mb --tcp-keepalive 30 --loglevel debug
+    ports:
+      - 0.0.0.0:6379:6379
+
+  postgres-nippon:
+    image: postgres:9.5.6-alpine
+    volumes:
+      - ~/data/postgres/nippon:/var/lib/postgresql/data
+    ports:
+      - 0.0.0.0:5432:5432
+
+  nippon:
+    build:
+      context: .
+      dockerfile: Dockerfile.nippon
+    command: /usr/sbin/sshd -D
+    ports:
+      - 0.0.0.0:2226:22
+    volumes:
+      - .:/code
+    links:
+      - postgres-nippon
+      - redis-nippon
+
+  nippon2:
+    build:
+      context: .
+      dockerfile: Dockerfile.nippon-frontend
+    command: /usr/sbin/sshd -D
+    volumes:
+      - .:/code
+    ports:
+      - 0.0.0.0:2228:22
+    links:
+      - postgres-nippon
+      - redis-nippon
+
+  rabbitmq-nippon:
+    image: frodenas/rabbitmq
+    ports:
+        - 0.0.0.0:15671:15671
+        - 0.0.0.0:5671:5671
+
+  worker-nippon:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command: /usr/sbin/sshd -D
+    volumes:
+      - .:/code
+    ports:
+      - 0.0.0.0:2227:22
+      - 0.0.0.0:5054:5054
+    links:
+      - postgres-nippon
+      - redis-nippon
+      - rabbitmq-nippon
+
+  proxy-nippon:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - 0.0.0.0:443:443
+      - 0.0.0.0:8243:8243
+      - 0.0.0.0:8343:8343
+    volumes:
+      - ./logs:/var/log/nippon
+      - ./static:/var/www/nippon/static
+      - ./static:/var/www/nippon-frontend/static
+    networks:
+      default:
+        aliases:
+          - "nippon-express.com"
+          - "frontend.nippon-express.com"
+    depends_on:
+      - nippon
+      - nippon2

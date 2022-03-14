@@ -1,0 +1,106 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load  static %}
+
+{% block content %}
+    {% if request.COOKIES.success_msg %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.success_msg }} </div>
+    {% endif %}
+
+    {% if request.COOKIES.error_msg %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.error_msg }} </div>
+    {% endif %}
+
+    <div class="box box-default">
+        <!-- /.box-header -->
+        <div class="box-body">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'site_detail' id=site_id %}" role="tab" aria-selected="false">
+                            <span class="hidden-sm-up">
+                                <i class="ion-home"></i>
+                            </span>
+                        <span class="hidden-xs-down">Site Data</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active show"href="{% url 'hr_site_list' id=site_id%}" role="tab" aria-selected="true">
+                            <span class="hidden-sm-up">
+                                <i class="ion-person"></i>
+                            </span>
+                        <span class="hidden-xs-down">HR List</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content tabcontent-border">
+                <div class="tab-pane active show" id="profile" role="tabpanel">
+                    <div class="pad">
+                        <h3>HR Site Data</h3>
+                        <div id="navpills-1" class="tab-pane active">
+                            <form method="post" enctype="application/x-www-form-urlencoded">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label>Name<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="text" name="name" class="form-control" autocomplete="off"/>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                        <div class="form-group">
+                                            <label>Mobile Phone<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="text" name="mobile_phone" class="form-control" autocomplete="off"/>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label>Email<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="text" name="email" class="form-control" autocomplete="off"/>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                        <div class="form-group">
+                                            <label>Phone Number<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="text" name="phone_number" class="form-control" autocomplete="off"/>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+
+                                    <!-- Button Submit -->
+                                    <div class="col-md-6 col-12">
+                                        <a href="{% url 'hr_site_list' id=site_id%}" class="btn btn-red">
+                                            <i class="fa fa-ban"></i>
+                                            Cancel
+                                        </a>
+                                    </div>
+
+                                    <div class="col-md-6 col-12">
+                                        <button type="submit" class="btn btn-info pull-right">
+                                            <i class="fa fa-floppy-o"></i>
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+    </div>
+{% endblock %}

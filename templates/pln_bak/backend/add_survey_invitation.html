@@ -1,0 +1,189 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/select2/dist/css/select2.min.css' %}">
+{% endblock %}
+
+{% block javascript %}
+    <script src="{% static '/assets/vendor_components/select2/dist/js/select2.full.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+    <script type="text/javascript">
+        $(function () {
+            "use strict";
+            $('.select2').select2();
+            //Date picker
+            $('#expired_date').datepicker({
+                autoclose: true,
+                format: 'dd/mm/yyyy',
+                disableTouchKeyboard: true
+            });
+        });
+
+        $(document).ready(function () {
+            $('#add_recipient').click(function () {
+                var contact_selected = $('#recipient option:selected');
+                var priority_selected = $('#is_priority option:selected');
+
+                if(contact_selected.val().trim() == '0' || priority_selected.val().trim() == '0'){
+                    alert('Please select contact and priority');
+                }else{
+
+                    var check_contact_id = $("input").filter(function() {
+                        return $(this).val() == contact_selected.val();
+                    }).closest("tr");
+
+                    if(check_contact_id.length == 0){
+                        $('#default_row_recipient').remove();
+                        var new_row = '<tr>';
+                        new_row += '<td>' + contact_selected.text() + '<input type="hidden" name="contact_id[]" value="'+contact_selected.val()+'"></td>';
+                        new_row += '<td>' + priority_selected.text() + '<input type="hidden" name="priorities[]" value="'+priority_selected.val()+'"></td>';
+                        new_row += '<td><button type="button" class="btn btn-red"><i class="fa fa-trash"></i></button></td>';
+                        new_row += '</tr>';
+                        $('#table_list_contact tbody').append(new_row);
+                        $('#recipient').val('0').trigger('change.select2');
+                        $('#is_priority').val('0').trigger('change.select2');
+                    }else{
+                        alert('the contact was already in the list');
+                    }
+                }
+            });
+
+            $('#table_list_contact').on('click', 'button', function(){
+                $(this).closest('tr').remove();
+                var rowCount = $('#table_list_contact tr').length;
+                if(rowCount == 1){
+                    $('#table_list_contact tbody').append('<tr id="default_row_recipient"><td colspan="3">No Data</td></tr>');
+                }
+            });
+        });
+    </script>
+
+{% endblock %}
+
+
+{% block content %}
+
+    {% if request.COOKIES.success_msg %}
+        <div class="alert alert-success alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ request.COOKIES.success_msg }} </div>
+    {% endif %}
+
+    {% if request.COOKIES.error_msg %}
+        <div class="alert alert-danger alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ request.COOKIES.error_msg }} </div>
+    {% endif %}
+
+    <form method="post" enctype="application/x-www-form-urlencoded">
+        <div class="box">
+
+            {% csrf_token %}
+            <div class="box-header with-border">
+                <h3 class="box-title">Survey Invitation Attributes</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="form-group">
+                    <label>Survey Invitation Name<span class="required_field">*</span> : </label>
+                    <div class="controls">
+                        <input type="text" name="name" class="form-control" autocomplete="off"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8 col-8">
+                        <div class="form-group">
+                            <label>Survey<span class="required_field">*</span> : </label>
+                            <select class="form-control select2 w-p100" name="survey" id="survey">
+                                <option value="0">--- Select Survey --- </option>
+                                {% for survey in surveys %}
+                                    <option value="{{ survey.id }}">{{ survey.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-4">
+                        <div class="form-group">
+                            <label>Expired Survey Date<span class="required_field">*</span> : </label>
+                            <div class="controls">
+                                <input type="text" name="expired_date" id="expired_date" autocomplete="off" class="form-control" data-inputmask="'alias': 'dd/mm/yyyy'" data-mask/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8 col-8">
+                        <div class="form-group">
+                            <label>Survey Recipient<span class="required_field">*</span> : </label>
+                            <div class="controls">
+                                <select class="form-control select2 w-p100" id="recipient">
+                                    <option value="0">--- Select Recipient ---</option>
+                                    {% for recipient in recipients %}
+                                        <option value="{{ recipient.id }}">
+                                            {{ recipient.user.first_name }} {{ recipient.user.last_name }}
+                                            [<strong>Email:</strong> {{ recipient.user.email }}]
+                                            [<strong>Customer:</strong> {{ recipient.customer.name }}]
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 col-2">
+                        <div class="form-group">
+                            <label>Priority Customer<span class="required_field">*</span> : </label>
+                            <div class="controls">
+                                <select class="form-control select2 w-p100" id="is_priority">
+                                    <option value="0">--- Select Priority ---</option>
+                                    <option value="true">Priority</option>
+                                    <option value="false">Regular</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 col-2">
+                        <div class="form-group">
+                            <label>&nbsp; </label>
+                            <div class="controls">
+                                <button type="button" class="btn btn-success" id="add_recipient">
+                                    <i class="fa fa-group"></i> Add Survey Recipient</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                      <table class="table table-bordered" id="table_list_contact">
+                        <thead><tr>
+                          <th>Customer Name</th>
+                          <th>Priority</th>
+                          <th style="width: 40px">Action</th>
+                        </tr></thead>
+                          <tbody>
+                        <tr id="default_row_recipient">
+                          <td colspan="3">No Data</td>
+                        </tr>
+                          </tbody></table>
+                    </div>
+
+            </div>
+            <div class="box-footer">
+                <a href="{% url 'survey_invitation_list' %}" class="btn btn-red">
+                    <i class="fa fa-ban"></i>
+                    Cancel
+                </a>
+
+                <button type="submit" class="btn btn-info pull-right">
+                    <i class="fa fa-floppy-o"></i>
+                    Save
+                </button>
+            </div>
+        </div>
+    </form>
+
+
+{% endblock %}

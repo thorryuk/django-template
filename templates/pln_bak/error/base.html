@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{% static '/images/favicon.ico' %}">
+
+    <title>{{ title }} </title>
+
+	<!-- Bootstrap 4.0-->
+	<link rel="stylesheet" href="{% static '/assets/vendor_components/bootstrap/dist/css/bootstrap.min.css' %}">
+
+	<!-- Bootstrap extend-->
+	<link rel="stylesheet" href="{% static '/css/bootstrap-extend.css' %}">
+
+	<!-- Theme style -->
+	<link rel="stylesheet" href="{% static '/css/master_style.css' %}">
+
+	<!-- Lion_admin skins -->
+	<link rel="stylesheet" href="../../css/skins/_all-skins.css">
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+	<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+	<![endif]-->
+
+</head>
+<body class="hold-transition">
+
+	<section class="bg-img h-p100" style="background-image: url({% static '/images/gallery/full/3.jpg' %});">
+		<div class="container h-p100">
+		  <div class="row h-p100 align-items-center justify-content-center text-center">
+
+			{% block content %}
+
+            {% endblock %}
+
+		  </div>
+		</div>
+	</section>
+
+	<!-- jQuery 3 -->
+	<script src="{% static '/assets/vendor_components/jquery/dist/jquery.min.js' %}"></script>
+
+	<!-- popper -->
+	<script src="{% static '/assets/vendor_components/bootstrap/assets/js/vendor/popper.min.js' %}"></script>
+
+	<!-- Bootstrap 4.0-->
+	<script src="{% static '/assets/vendor_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+
+
+</body>
+</html>

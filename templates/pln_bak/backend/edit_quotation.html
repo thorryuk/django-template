@@ -1,0 +1,938 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/select2/dist/css/select2.min.css' %}">
+{% endblock %}
+
+{% block javascript %}
+
+    <script src="{% static '/assets/vendor_components/select2/dist/js/select2.full.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+    <script type="text/javascript">
+
+        function show_related_div(type){
+            if(type == 'air_freight'){
+                    $('#air_freight_item_box').show();
+                $('#air_freight_related_cost_box').show();
+                $('#export_handling_charge_box').hide();
+                $('#import_handling_charge_box').hide();
+            }else if(type == 'export'){
+                $('#air_freight_item_box').show();
+                $('#air_freight_related_cost_box').hide();
+                $('#export_handling_charge_box').show();
+                $('#import_handling_charge_box').hide();
+            }else if(type == 'import'){
+                $('#air_freight_item_box').hide();
+                $('#air_freight_related_cost_box').hide();
+                $('#export_handling_charge_box').hide();
+                $('#import_handling_charge_box').show();
+            }else{
+                $('#air_freight_item_box').hide();
+                $('#air_freight_related_cost_box').hide();
+                $('#export_handling_charge_box').hide();
+                $('#import_handling_charge_box').hide();
+            }
+        }
+
+
+        $(function () {
+            "use strict";
+
+            $('.select2').select2();
+
+            //Date picker
+            $('#internal_due_date').datepicker({
+                autoclose: true,
+                format: 'dd/mm/yyyy',
+                disableTouchKeyboard: true
+            });
+
+            $('#quotation_due_date').datepicker({
+                autoclose: true,
+                format: 'dd/mm/yyyy',
+                disableTouchKeyboard: true
+            });
+
+            $('#air_freight_item_box').hide();
+            $('#air_freight_related_cost_box').hide();
+            $('#export_handling_charge_box').hide();
+            $('#import_handling_charge_box').hide();
+
+            $('#type').change(function(){
+                var type = $(this).val();
+                show_related_div(type);
+                $.ajax({
+                    url: backend_base_url + "api/templates_by_type?quotation_type=" + type,
+                    dataType: "json"
+                }).done(function( data ) {
+                    var total_data = data.length;
+                    if(total_data > 0 ){
+                        $.map( data, function( item ) {
+                            $('#template').append('<option value="'+item.id+'">' + item.name + '</option>');
+                        });
+                    }else{
+                        $('#template').append('<option value="-">-</option>');
+                    }
+                    $("#template").trigger("chosen:updated");
+                    $("#template").trigger("liszt:updated");
+                });
+            });
+        });
+
+        $(document).ready(function () {
+
+            var type = $('#type option:selected').val()
+            show_related_div(type);
+
+            $('#customer').change(function () {
+                var val_customer = $(this).val();
+                $.ajax({
+                    url: "http://nippon-express.com:8043/api/contacts_by_client?customer_id=" + val_customer,
+                    dataType: "json"
+                }).done(function( data ) {
+                    var total_data = data.length;
+                    if(total_data > 0 ){
+                        $.map( data, function( item ) {
+                            $('#contact_list').append('<option value="'+item.id+'">' + item.user__first_name + ' ' + item.user__last_name + '</option>');
+                        });
+                    }else{
+                        $('#contact_list').append('<option value="-">-</option>');
+                    }
+                    $("#contact_list").trigger("chosen:updated");
+                    $("#contact_list").trigger("liszt:updated");
+                });
+            });
+
+            /*============================================================================*/
+
+            /* Add Air Freight Function */
+            $('#add_airfreight').click(function () {
+                $('#default_row_air_freight').remove();
+
+                var new_row = '<tr>';
+                new_row += '<td><input type="input" value="" name="air_freight_dest[]" class="form-control"></td>';
+                new_row += '<td><input type="input" value="" name="air_freight_rates_min[]" class="form-control"></td>';
+                new_row += '<td><input type="input" value="" name="air_freight_rates_min_45[]" class="form-control"></td>';
+                new_row += '<td><input type="input" value="" name="air_freight_rates_plus_45[]" class="form-control"></td>';
+                new_row += '<td><input type="input" value="" name="air_freight_rates_plus_100[]" class="form-control"></td>';
+                new_row += '<td><input type="input" value="" name="air_freight_rates_plus_300[]" class="form-control"></td>';
+                new_row += '<td><input type="input" value="" name="air_freight_rates_plus_500[]" class="form-control"></td>';
+                new_row += '<td><input type="input" value="" name="air_freight_rates_plus_1000[]" class="form-control"></td>';
+                new_row += '<td><input type="input" value="" name="air_freight_fsc[]" class="form-control"></td>';
+                new_row += '<td><input type="input" value="" name="air_freight_ssc[]" class="form-control"></td>';
+                new_row += '<td><input type="input" value="" name="air_freight_route[]" class="form-control"></td>';
+                new_row += '<td><input type="input" value="" name="air_freight_service[]" class="form-control"></td>';
+                new_row += '<td><button type="button" class="btn btn-red"> <i class="fa fa-trash"></i> </button></td>';
+                new_row += '</tr>';
+
+                $('#table_list_air_freight tbody').append(new_row);
+            });
+
+            $('#table_list_air_freight').on('click', 'button', function(){
+                $(this).closest('tr').remove();
+                var rowCount = $('#table_list_air_freight tr').length;
+                if(rowCount == 1){
+                    $('#table_list_air_freight tbody').append('<tr id="default_row_air_freight"><td colspan="13">No Data</td></tr>');
+                }
+            });
+
+            /*============================================================================*/
+
+            /* Add Air Freight Other Cost Related Function */
+
+            $('#add_air_freight_other_cost').click(function () {
+                $('#default_air_freight_other_cost').remove();
+
+                var new_row = '<tr>';
+                new_row += '<td><input type="input" value="" name="air_freight_other_cost_desc_list[]" class="form-control"></td>';
+                new_row += '<td><input type="input" value="" name="air_freight_other_cost_rate_list[]" class="form-control"></td>';
+                new_row += '<td><button type="button" class="btn btn-red"> <i class="fa fa-trash"></i> </button></td>';
+                new_row += '</tr>';
+                $('#table_air_freight_other_cost tbody').append(new_row);
+            });
+
+            $('#table_air_freight_other_cost').on('click', 'button', function(){
+                $(this).closest('tr').remove();
+                var rowCount = $('#table_air_freight_other_cost tr').length;
+                if(rowCount == 1){
+                    $('#table_air_freight_other_cost tbody').append('<tr id="default_air_freight_other_cost"><td colspan="3">No Data</td></tr>');
+                }
+            });
+
+
+            /*============================================================================*/
+
+            /* Add Customer Contact Function */
+
+            $('#add_contact').click(function(){
+                var selected_contact = $('#contact_list option:selected');
+
+                if(selected_contact.val() == 0){
+                    alert('Please select other contact');
+                    return false;
+                }
+
+                var check_contact_id = $("input").filter(function() {
+                    return $(this).val() == selected_contact.val();
+                }).closest("tr");
+
+                if(check_contact_id.length == 0){
+                    $('#default_row_contact').remove();
+                    var new_row = '<tr>';
+                    new_row += '<td>' + selected_contact.text() + '<input type="hidden" name="contact_id[]" value="' + selected_contact.val() + '"></td>';
+                    new_row += '<td><button type="button" class="btn btn-red"> <i class="fa fa-trash"></i></button></td>';
+                    new_row += '</tr>';
+                    $('#table_list_contact tbody').append(new_row);
+                }else{
+                    alert('the customer contact is already in the list');
+                }
+            });
+
+            $('#table_list_contact').on('click', 'button', function(){
+                $(this).closest('tr').remove();
+                var rowCount = $('#table_list_contact tr').length;
+                if(rowCount == 1){
+                    $('#table_list_contact tbody').append('<tr id="default_row_contact"><td colspan="3">No Data</td></tr>');
+                }
+            });
+
+            /*============================================================================*/
+
+            /* Add Supervisor Function */
+
+            $('#add_supervisor').click(function(){
+                var selected_supervisor = $('#supervisor_list option:selected');
+                if(selected_supervisor.val() == 0){
+                    alert('Please select other supervisor');
+                    return false;
+                }
+                var check_spv_id = $("input").filter(function() {
+                    return $(this).val() == selected_supervisor.val();
+                }).closest("tr");
+
+                if(check_spv_id.length == 0){
+                    $('#default_row_supervisor').remove();
+                    var new_row = '<tr>';
+                    new_row += '<td>' + selected_supervisor.text() + '<input type="hidden" name="supervisors_id[]" value="'+selected_supervisor.val()+'"></td>';
+                    new_row += '<td><button type="button" class="btn btn-red"><i class="fa fa-trash"></i></button></td>';
+                    new_row += '</tr>';
+                    $('#table_list_supervisor tbody').append(new_row);
+                }else{
+                    alert('the supervisor is already in the list');
+                }
+            });
+
+            $('#table_list_supervisor').on('click', 'button', function(){
+                $(this).closest('tr').remove();
+                var rowCount = $('#table_list_supervisor tr').length;
+                if(rowCount == 1){
+                    $('#table_list_supervisor tbody').append('<tr id="default_row_supervisor"><td colspan="3">No Data</td></tr>');
+                }
+            });
+            /*============================================================================*/
+
+            /* Add Export Items Function */
+
+            $('#add_export_item').click(function () {
+                $('#default_export_item').remove();
+
+                var type = $('#export_record_type').val();
+                var desc = $('#export_description').val();
+
+                if(type == 'parent'){
+
+                    var counter_list_export = $('#counter_list_export').val();
+                    counter_list_export++;
+
+                    var new_row = '<tr class="export_item_parent_'+counter_list_export+'" data-counter="'+counter_list_export+'" data-child="export_item_child_'+counter_list_export+'">';
+                    new_row += '<td>'+desc+'<input type="hidden" value="'+desc+'" name="export_item_parent_desc_'+counter_list_export+'[]"></td>';
+                    new_row += '<td colspan="3">' +
+                               '<button type="button" class="btn btn-info" id="add-export-item-list"> <i class="fa fa-plus"></i> Add Item</button> &nbsp;' +
+                               '<button type="button" class="btn btn-red" id="del-export-item-list"> <i class="fa fa-trash"></i>' +
+                               '<input type="hidden" value="'+counter_list_export+'" name="export_item_parent_counter[]"> ' +
+                               '</td>';
+                    new_row += '</tr>';
+                    new_row += '<tr class="export_item_child_'+counter_list_export+'">';
+                    new_row += '<td><input type="input" value="" class="form-control" name="export_item_child_desc_'+counter_list_export+'[]"></td>';
+                    new_row += '<td><input type="input" value="" class="form-control" name="export_item_child_rates_'+counter_list_export+'[]"></td>';
+                    new_row += '<td><input type="input" value="" class="form-control" name="export_item_child_info_'+counter_list_export+'[]"></td>';
+                    new_row += '<td><button type="button" class="btn btn-red" id="del_standard"> <i class="fa fa-trash"></i> </button></td>';
+                    new_row += '</tr>';
+                    $('#counter_list_export').val(counter_list_export);
+                }else{
+                    var new_row = '<tr class="export_item_child">';
+                    new_row += '<td>'+desc+'<input type="hidden" value="'+desc+'" name="export_item_desc[]"></td>';
+                    new_row += '<td><input type="input" value="" class="form-control" name="export_item_rates[]"></td>';
+                    new_row += '<td><input type="input" value="" class="form-control" name="export_item_info[]"></td>';
+                    new_row += '<td><button type="button" class="btn btn-red" id="del_standard"> <i class="fa fa-trash"></i> </button></td>';
+                    new_row += '</tr>';
+                }
+
+                $('#table_export_item tbody').append(new_row);
+            });
+
+            $('#table_export_item').on('click', 'button', function(){
+
+                var id_name = $(this).attr('id');
+                if(id_name == 'add-export-item-list') {
+
+                    var data_counter = $(this).closest('tr').attr('data-child');
+                    var new_row = '<tr class="'+data_counter+'">';
+                    new_row += '<td><input type="input" value="" class="form-control" name="export_item_child_desc_'+data_counter+'[]"></td>';
+                    new_row += '<td><input type="input" value="" class="form-control" name="export_item_child_rates_'+data_counter+'[]"></td>';
+                    new_row += '<td><input type="input" value="" class="form-control" name="export_item_child_info_'+data_counter+'[]"></td>';
+                    new_row += '<td><button type="button" class="btn btn-red" id="del_standard"> <i class="fa fa-trash"></i> </button></td>';
+                    $(new_row).insertAfter($(this).closest('tr'));
+
+                }else if(id_name == 'del-export-item-list') {
+
+                    var class_name = $(this).closest('tr').attr('data-child');
+                    $('#table_export_item tr.' + class_name).remove();
+                    $(this).closest('tr').remove();
+                    var rowCount = $('#table_export_item tr').length;
+                    if(rowCount == 1){
+                        $('#table_export_item tbody').append('<tr id="default_export_item"><td colspan="4">No Data</td></tr>');
+                    }
+
+                }else{
+
+                    $(this).closest('tr').remove();
+                    var rowCount = $('#table_export_item tr').length;
+                    if(rowCount == 1){
+                        $('#table_export_item tbody').append('<tr id="default_export_item"><td colspan="4">No Data</td></tr>');
+                    }
+                }
+            });
+
+
+            /*============================================================================*/
+
+            /* Add Import Items Function */
+
+            $('#add_import_item').click(function () {
+                $('#default_import_item').remove();
+
+                var type = $('#import_record_type').val();
+                var desc = $('#import_description').val();
+
+                if(type == 'parent'){
+
+                    var counter_list_import = $('#counter_list_import').val();
+                    counter_list_import++;
+
+                    var new_row = '<tr class="import_item_parent_'+counter_list_import+'" data-counter="'+counter_list_import+'" data-child="import_item_child_'+counter_list_import+'">';
+                    new_row += '<td>'+desc+'<input type="hidden" value="'+desc+'" name="import_item_parent_desc_'+counter_list_import+'[]"></td>';
+                    new_row += '<td colspan="3">' +
+                               '<button type="button" class="btn btn-info" id="add-import-item-list"> <i class="fa fa-plus"></i> Add Item</button> &nbsp;' +
+                               '<button type="button" class="btn btn-red" id="del-import-item-list"> <i class="fa fa-trash"></i>' +
+                               '<input type="hidden" value="'+counter_list_import+'" name="import_item_parent_counter[]"> ' +
+                               '</td>';
+                    new_row += '</tr>';
+                    new_row += '<tr class="import_item_child_'+counter_list_import+'">';
+                    new_row += '<td><input type="input" value="" class="form-control" name="import_item_child_desc_'+counter_list_import+'[]"></td>';
+                    new_row += '<td><input type="input" value="" class="form-control" name="import_item_child_rates_'+counter_list_import+'[]"></td>';
+                    new_row += '<td><input type="input" value="" class="form-control" name="import_item_child_info_'+counter_list_import+'[]"></td>';
+                    new_row += '<td><button type="button" class="btn btn-red" id="del_standard"> <i class="fa fa-trash"></i> </button></td>';
+                    new_row += '</tr>';
+                    $('#counter_list_import').val(counter_list_import);
+                }else{
+                    var new_row = '<tr class="import_item_child">';
+                    new_row += '<td>'+desc+'<input type="hidden" value="'+desc+'" name="import_item_desc[]"></td>';
+                    new_row += '<td><input type="input" value="" class="form-control" name="import_item_rates[]"></td>';
+                    new_row += '<td><input type="input" value="" class="form-control" name="import_item_info[]"></td>';
+                    new_row += '<td><button type="button" class="btn btn-red" id="del_standard"> <i class="fa fa-trash"></i> </button></td>';
+                    new_row += '</tr>';
+                }
+
+                $('#table_import_item tbody').append(new_row);
+            });
+
+            $('#table_import_item').on('click', 'button', function(){
+
+                var id_name = $(this).attr('id');
+                if(id_name == 'add-import-item-list') {
+
+                    var data_counter = $(this).closest('tr').attr('data-child');
+                    var new_row = '<tr class="'+data_counter+'">';
+                    new_row += '<td><input type="input" value="" class="form-control" name="import_item_child_desc_'+data_counter+'[]"></td>';
+                    new_row += '<td><input type="input" value="" class="form-control" name="import_item_child_rates_'+data_counter+'[]"></td>';
+                    new_row += '<td><input type="input" value="" class="form-control" name="import_item_child_info_'+data_counter+'[]"></td>';
+                    new_row += '<td><button type="button" class="btn btn-red" id="del_standard"> <i class="fa fa-trash"></i> </button></td>';
+                    $(new_row).insertAfter($(this).closest('tr'));
+
+                }else if(id_name == 'del-import-item-list') {
+
+                    var class_name = $(this).closest('tr').attr('data-child');
+                    $('#table_import_item tr.' + class_name).remove();
+                    $(this).closest('tr').remove();
+                    var rowCount = $('#table_import_item tr').length;
+                    if(rowCount == 1){
+                        $('#table_import_item tbody').append('<tr id="default_import_item"><td colspan="4">No Data</td></tr>');
+                    }
+
+                }else{
+
+                    $(this).closest('tr').remove();
+                    var rowCount = $('#table_import_item tr').length;
+                    if(rowCount == 1){
+                        $('#table_import_item tbody').append('<tr id="default_import_item"><td colspan="4">No Data</td></tr>');
+                    }
+                }
+            });
+
+
+            /*============================================================================*/
+
+
+            $('.delete-item-action').click(function () {
+                var type_action = $(this).attr('data-type');
+                var item_id = $(this).attr('data-id');
+                var quot_id = $(this).attr('data-quot-id');
+                $.ajax({
+                    url: backend_base_url + "quotation/delete/item/" + type_action + "/" + quot_id + "/" + item_id,
+                    dataType: "json"
+                }).done(function( data ) {
+                    location.reload();
+                });
+            });
+
+            $('#type').change(function () {
+                $('#ref_no').val('[To Be Define By System]');
+                $('#rev-num').val('[To Be Define By System]');
+            });
+        });
+
+    </script>
+{% endblock %}
+
+{% block content %}
+
+    {% if request.COOKIES.success_msg %}
+        <div class="alert alert-success alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ request.COOKIES.success_msg }} </div>
+    {% endif %}
+
+    {% if request.COOKIES.error_msg %}
+        <div class="alert alert-danger alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ request.COOKIES.error_msg }} </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title">Quotation Attributes</h3>
+            </div>
+            <div class="box-body">
+                <div class="row">
+
+                    <!-- LEFT COLUMN -->
+                    <div class="col-md-6 col-12">
+                        <div class="form-group">
+                            <label>Type<span class="required_field">*</span> : </label>
+                            <select class="form-control select2 w-p100" name="type" id="type">
+                                <option value="0">--- Type --- </option>
+                                <option value="air_freight" {% if quotation_detail.type == 1 %}selected{%endif%}>Air Freight</option>
+                                <option value="export" {% if quotation_detail.type == 2 %}selected{%endif%}>Export</option>
+                                <option value="import" {% if quotation_detail.type == 3 %}selected{%endif%}>Import</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Template<span class="required_field">*</span> : </label>
+                            <select class="form-control select2 w-p100" name="template" id="template">
+                                <option value="0">--- Template --- </option>
+                                {% for template in quotation_templates %}
+                                    <option value="{{template.id}}" {% if template.id == quotation_detail.template_quotation_id %} selected {% endif %}>{{template.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ref. No : </label>
+                            <div class="controls">
+                                <input type="text" id="ref_no" name="name" class="form-control" value="{{quotation_detail.quotation_number}}" readonly/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Name<span class="required_field">*</span> : </label>
+                            <div class="controls">
+                                <input type="text" autocomplete="off" name="name" class="form-control" value="{{quotation_detail.name}}"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Customer<span class="required_field">*</span> : </label>
+                            <select class="form-control select2 w-p100" name="customer" id="customer">
+                                <option value="0">--- Customer --- </option>
+                                {% for customer in customers %}
+                                    <option value="{{ customer.id }}" {% if customer.id == quotation_detail.customer_id %} selected {% endif %}>{{ customer.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- /.col -->
+                    <div class="col-md-6 col-12">
+                        <div class="form-group">
+                            <label>Approval Due Date<span class="required_field">*</span> : </label>
+                            <div class="controls">
+                                <input type="text" name="internal_due_date" id="internal_due_date" value="{{quotation_detail.internal_due_date|date:'d/m/Y'}}" class="form-control" data-inputmask="'alias': 'dd/mm/yyyy'" data-mask/>
+                            </div>
+                        </div>
+                        <!-- /.form-group -->
+                        <div class="form-group">
+                            <label>Quotation Due Date<span class="required_field">*</span> : </label>
+                            <div class="controls">
+                                <input type="text" name="quotation_due_date" id="quotation_due_date" value="{{quotation_detail.quotation_due_date|date:'d/m/Y'}}" class="form-control" data-inputmask="'alias': 'dd/mm/yyyy'" data-mask/>
+                            </div>
+                        </div>
+                        <!-- /.form-group -->
+
+                        <div class="form-group">
+                            <label>Currency<span class="required_field">*</span> : </label>
+                            <select class="form-control select2 w-p100" name="currency" id="currency">
+                                <option value="0">--- Currency --- </option>
+                                {% for currency in currencies %}
+                                    <option value="{{ currency.id }}" {%if currency.id == quotation_detail.currency_id %}selected{%endif%}>{{ currency.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Revision Number : </label>
+                            <div class="controls">
+                                <input type="text" id="rev-num" class="form-control" value="R-{{quotation_detail.revision_number}}" readonly/>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- /.row -->
+            </div>
+        </div>
+
+        <div class="box" id="air_freight_item_box">
+            <div class="box-header with-border">
+                <h3 class="box-title" id="title_air_freight_item">Air Freight</h3>
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-12 col-12">
+
+                        <button type="button" class="btn btn-primary pull-left" id="add_airfreight">
+                            <i class="fa fa-plus"></i>
+                            Add Air Freight Record
+                        </button>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 col-12">
+                    <div class="bb-1 border-info h-30"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="table-responsive">
+                      <table class="table table-bordered" id="table_list_air_freight">
+                        <thead><tr>
+                          <th>Dest / Origin</th>
+                          <th>Rates Min</th>
+                          <th>Rates -45Kg</th>
+                          <th>Rates +45Kg</th>
+                          <th>Rates +100Kgs</th>
+                          <th>Rates +300Kg</th>
+                          <th>Rates +500Kg</th>
+                          <th>Rates +1000Kg</th>
+                          <th>FSC / Kg</th>
+                          <th>SSC / Kg</th>
+                          <th>Route</th>
+                          <th>Service</th>
+                          <th style="width: 40px">Action</th>
+                        </tr></thead>
+                          <tbody>
+                          {% for airfreight_content in air_freight_contents %}
+                            <tr>
+                                <td>{{ airfreight_content.dest_or_origin }}</td>
+                                <td>{{ airfreight_content.rates_min | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.rates_min_45 | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.rates_plus_45 | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.rates_plus_100 | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.rates_plus_300 | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.rates_plus_500 | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.rates_plus_1000 | floatformat:0 | intcomma }}</td>
+                                <td>{{ airfreight_content.fsc }}</td>
+                                <td>{{ airfreight_content.ssc }}</td>
+                                <td>{{ airfreight_content.route }}</td>
+                                <td>{{ airfreight_content.service }}</td>
+                                <td>
+                                    <a href="" class="btn btn-red delete-item-action" data-type="air_freight_item"
+                                       data-id="{{airfreight_content.id}}" data-quot-id="{{quotation_detail.id}}" title="Delete Item" onclick="return confirm('Are you sure to delete this item?'); "><i class="fa fa-trash">
+                                    </i> </a>
+                                </td>
+                            </tr>
+                          {% empty %}
+                            <tr id="default_row_air_freight">
+                              <td colspan="13">No Data</td>
+                            </tr>
+                        {% endfor %}
+
+                          </tbody></table>
+                    </div>
+                </div>
+                <!-- /.row -->
+            </div>
+        </div>
+
+        <div class="box" id="air_freight_related_cost_box">
+            <div class="box-header with-border">
+                <h3 class="box-title">Other Cost Related Air Freight</h3>
+            </div>
+            <div class="box-body">
+                <div class="row">
+
+                    <div class="col-md-4 col-12">
+                        <button type="button" class="btn btn-primary" id="add_air_freight_other_cost">
+                            <i class="fa fa-plus"></i>
+                            Add Other Cost Related Air Freight Record
+                        </button>
+                    </div>
+
+                    <div class="col-md-12 col-12">
+                        <div class="table-responsive">
+                          <table class="table table-bordered" id="table_air_freight_other_cost">
+                            <thead><tr>
+                              <th>Description</th>
+                              <th>Rates</th>
+                              <th style="width: 40px">Action</th>
+                            </tr></thead>
+                              <tbody>
+                              {% for other_cost_content in air_freight_other_cost_contents %}
+                            <tr>
+                                <td>{{ other_cost_content.description }}</td>
+                                <td>{{ other_cost_content.rates | floatformat:0 | intcomma }}</td>
+                                <td>
+                                     <a href="" class="btn btn-red delete-item-action" data-type="air_freight_other_item"
+                                       data-id="{{other_cost_content.id}}" data-quot-id="{{quotation_detail.id}}" onclick="return confirm('Are you sure to delete this item?'); " title="Delete Item"><i class="fa fa-trash">
+                                    </i> </a>
+                                </td>
+                            </tr>
+                              {% empty %}
+                              <tr id="default_air_freight_other_cost">
+                                  <td colspan="3">No Data</td>
+                                </tr>
+                            {% endfor %}
+
+                              </tbody></table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="box" id="export_handling_charge_box">
+            <div class="box-header with-border">
+                <h3 class="box-title">Export Handling Charges</h3>
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-4 col-12">
+                        <div class="form-group">
+                            <label>Record Type : </label>
+                            <div class="controls">
+                                <input type="hidden" value="0" id="counter_list_export">
+                                <select class="form-control select2 w-p100" id="export_record_type">
+                                    <option value="standard">Standard</option>
+                                    <option value="parent">Parent</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <div class="form-group">
+                            <label>Description : </label>
+                            <div class="controls">
+                                <input type="text" class="form-control" id="export_description"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <div class="controls">
+                                <button type="button" class="btn btn-primary" id="add_export_item">
+                                    <i class="fa fa-plus"></i>
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-12">
+                        <div class="table-responsive">
+                          <table class="table table-bordered" id="table_export_item">
+                            <thead><tr>
+                              <th>Description</th>
+                              <th>Rates</th>
+                              <th>Information</th>
+                              <th style="width: 40px">Action</th>
+                            </tr></thead>
+                              <tbody>
+                              {% for export_content in export_contents %}
+                                <tr id="default_export_item">
+                                    <td>{{ export_content.description }}</td>
+                                    <td>{% if export_content.rates %} {{export_content.rates | floatformat:0 | intcomma}} {% else %} &nbsp; {% endif %}</td>
+                                    <td>{% if export_content.info %} {{export_content.info}} {% else %} &nbsp; {% endif %} </td>
+                                    <td>
+                                        <a href="" class="btn btn-red delete-item-action" data-type="export_item"
+                                           data-id="{{export_content.id}}" data-quot-id="{{quotation_detail.id}}" onclick="return confirm('Are you sure to delete this item?'); "
+                                           title="Delete Item"><i class="fa fa-trash">
+                                        </i> </a>
+                                    </td>
+                                </tr>
+                                {% for detail in export_content.quotationexportimporthandlingdetail_set.all %}
+                                    <tr id="default_export_child_item">
+                                        <td>&nbsp; &nbsp; {{ detail.description }}</td>
+                                        <td>{{ detail.rates | floatformat:0 | intcomma}}</td>
+                                        <td>{{ detail.info }}</td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                {% endfor %}
+                              {% empty %}
+                                <tr id="default_export_item">
+                                  <td colspan="4">No Data</td>
+                                </tr>
+                            {% endfor %}
+
+                              </tbody></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.row -->
+            </div>
+        </div>
+
+        <div class="box" id="import_handling_charge_box">
+            <div class="box-header with-border">
+                <h3 class="box-title">Import Handling Charges</h3>
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-4 col-12">
+                        <div class="form-group">
+                            <label>Record Type : </label>
+                            <div class="controls">
+                                <input type="hidden" value="0" id="counter_list_import">
+                                <select class="form-control select2 w-p100" id="import_record_type">
+                                    <option value="standard">Standard</option>
+                                    <option value="parent">Parent</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <div class="form-group">
+                            <label>Description : </label>
+                            <div class="controls">
+                                <input type="text" class="form-control" id="import_description"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <div class="controls">
+                                <button type="button" class="btn btn-primary" id="add_import_item">
+                                    <i class="fa fa-plus"></i>
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-12">
+                        <div class="table-responsive">
+                          <table class="table table-bordered" id="table_import_item">
+                            <thead><tr>
+                              <th>Description</th>
+                              <th>Rates</th>
+                              <th>Information</th>
+                              <th style="width: 40px">Action</th>
+                            </tr></thead>
+                              <tbody>
+                              {% for import_content in import_contents %}
+                                <tr id="default_import_item">
+                                    <td>{{ import_content.description }}</td>
+                                    <td>{% if import_content.rates %} {{import_content.rates | floatformat:0 | intcomma}} {% else %} &nbsp; {% endif %}</td>
+                                    <td>{% if import_content.info %} {{export_content.info}} {% else %} &nbsp; {% endif %} </td>
+                                    <td>
+                                        <a href="" class="btn btn-red delete-item-action" data-type="import_item"
+                                           data-id="{{import_content.id}}" data-quot-id="{{quotation_detail.id}}" onclick="return confirm('Are you sure to delete this item?'); "
+                                           title="Delete Item"><i class="fa fa-trash">
+                                        </i> </a>
+                                    </td>
+                                </tr>
+                                {% for detail in import_content.quotationexportimporthandlingdetail_set.all %}
+                                    <tr id="default_import_child_item">
+                                        <td>&nbsp; &nbsp; {{ detail.description }}</td>
+                                        <td>{{ detail.rates | floatformat:0 | intcomma}}</td>
+                                        <td>{{ detail.info }}</td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                {% endfor %}
+                                {% empty %}
+                                <tr id="default_import_item">
+                                  <td colspan="4">No Data</td>
+                                </tr>
+                            {% endfor %}
+                              </tbody></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.row -->
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-6 col-12">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Quotation Recipient</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">Contact<span class="required_field">*</span></label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control select2 w-p100" name="contact_list" id="contact_list">
+                                            <option value="0">--- Contact --- </option>
+                                            {% for contact in customer_contacts %}
+                                                <option value="{{contact.id}}">{{contact.user.first_name}} {{contact.user.last_name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button type="button" class="btn btn-warning pull-right" id="add_contact">
+                                            <i class="fa fa-plus"></i>
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                  <table class="table" id="table_list_contact">
+                                    <thead><tr>
+                                      <th>Contact</th>
+                                      <th style="width: 40px">Action</th>
+                                    </tr>
+                                    </thead>
+                                      <tbody>
+                                      {% for contact in quotation_recipients %}
+                                        <tr>
+                                            <td>{{ contact.customer_contact.user.first_name }} {{ contact.customer_contact.user.last_name }}</td>
+                                            <td>
+                                                <a href="" class="btn btn-red delete-item-action" data-type="customer_contact"
+                                                   data-id="{{contact.id}}" data-quot-id="{{quotation_detail.id}}" onclick="return confirm('Are you sure to delete this item?'); "
+                                                   title="Delete Item"><i class="fa fa-trash">
+                                                </i> </a>
+                                            </td>
+                                        </tr>
+                                      {% empty %}
+                                      <tr id="default_row_contact">
+                                          <td colspan="3">No Data</td>
+                                        </tr>
+                                    {% endfor %}
+
+                                      </tbody></table>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-12">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Supervisor List</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">Supervisor<span class="required_field">*</span></label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control select2 w-p100" name="supervisor_list" id="supervisor_list">
+                                            <option value="0">--- Supervisor List --- </option>
+                                            {% for supervisor in supervisors %}
+                                                <option value="{{ supervisor.id }}">
+                                                    {{ supervisor.first_name | capfirst }}
+                                                    {{ supervisor.last_name | capfirst}}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button type="button" class="btn btn-warning pull-right" id="add_supervisor">
+                                            <i class="fa fa-plus"></i>
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                  <table class="table" id="table_list_supervisor">
+                                    <thead><tr>
+                                      <th>Supervisor Name</th>
+                                      <th style="width: 40px">Action</th>
+                                    </tr></thead>
+                                      <tbody>
+                                      {% for supervisor in quotation_supervisors %}
+                                        <tr>
+                                            <td>{{ supervisor.user.first_name | capfirst}} {{ supervisor.user.last_name | capfirst }}</td>
+                                            <td>
+                                                <a href="" class="btn btn-red delete-item-action" data-type="supervisor"
+                                                   data-id="{{supervisor.id}}" data-quot-id="{{quotation_detail.id}}" onclick="return confirm('Are you sure to delete this item?'); "
+                                                   title="Delete Item"><i class="fa fa-trash">
+                                                </i> </a>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                          <tr id="default_row_supervisor">
+                                              <td colspan="2">No Data</td>
+                                          </tr>
+                                        {% endfor %}
+
+                                      </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="box">
+            <!-- /.box-body -->
+            <div class="box-footer">
+                <a href="{% url 'quotation_detail' id=quotation_detail.id %}" class="btn btn-red">
+                    <i class="fa fa-ban"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-info pull-right">
+                    <i class="fa fa-floppy-o"></i>
+                    Update
+                </button>
+            </div>
+        </div>
+
+    </form>
+{% endblock %}

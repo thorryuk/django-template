@@ -1,0 +1,138 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/select2/dist/css/select2.min.css' %}">
+{% endblock %}
+
+{% block javascript %}
+
+    <script src="{% static '/assets/vendor_components/select2/dist/js/select2.full.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+    <script type="text/javascript">
+        $(function () {
+            "use strict";
+            $('.select2').select2();
+            //Date picker
+            $('#date').datepicker({
+                autoclose: true,
+                format: 'dd/mm/yyyy',
+                disableTouchKeyboard: true
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% if request.COOKIES.success_msg %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.success_msg }} </div>
+    {% endif %}
+
+    {% if request.COOKIES.error_msg %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.error_msg }} </div>
+    {% endif %}
+
+    <div class="box box-default">
+        <!-- /.box-header -->
+        <div class="box-body">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active show" href="{% url 'currency_history_list' %}" role="tab" aria-selected="true">
+                    <span class="hidden-sm-up">
+                                <i class="ion-home"></i>
+                            </span>
+                        <span class="hidden-xs-down">Currency Exchange</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link"href="{% url 'currency_list' %}" role="tab" aria-selected="false">
+                            <span class="hidden-sm-up">
+                                <i class="ion-person"></i>
+                            </span>
+                        <span class="hidden-xs-down">Currency List</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link"href="{% url 'awb_currency_list' %}" role="tab" aria-selected="false">
+                            <span class="hidden-sm-up">
+                                <i class="ion-person"></i>
+                            </span>
+                        <span class="hidden-xs-down">AWB Currency List</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content tabcontent-border">
+                <div class="tab-pane active show" id="question_list" role="tabpanel">
+                    <div class="pad">
+                        <h3>Add New Exchange</h3>
+                        <div id="navpills-1" class="tab-pane active">
+                            <form method="post" enctype="application/x-www-form-urlencoded">
+                                {% csrf_token %}
+                                <div class="row">
+
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label>Currency Source<span class="required_field">*</span> : </label>
+                                            <select class="form-control select2 w-p100" name="currency_src" id="country">
+                                                <option value="0">--- Currency Source --- </option>
+                                                {% for currency in currencies %}
+                                                    <option value="{{ currency.id }}">{{ currency.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Amount<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="text" name="amount" class="form-control" autocomplete="off"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label>Currency Destination<span class="required_field">*</span> : </label>
+                                            <select class="form-control select2 w-p100" name="currency_dst" id="country">
+                                                <option value="0">--- Currency Destination --- </option>
+                                                {% for currency in currencies %}
+                                                    <option value="{{ currency.id }}">{{ currency.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Date<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="text" name="date" id="date" class="form-control" data-inputmask="'alias': 'dd/mm/yyyy'" data-mask/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Button Submit -->
+                                    <div class="col-md-6 col-12">
+                                        <a href="{% url 'currency_list'%}" class="btn btn-red">
+                                            <i class="fa fa-ban"></i>
+                                            Cancel
+                                        </a>
+                                    </div>
+
+                                    <div class="col-md-6 col-12">
+                                        <button type="submit" class="btn btn-info pull-right">
+                                            <i class="fa fa-floppy-o"></i>
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+    </div>
+{% endblock %}

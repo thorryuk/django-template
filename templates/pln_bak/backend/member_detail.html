@@ -1,0 +1,323 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load  static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/select2/dist/css/select2.min.css' %}">
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static '/assets/vendor_components/jquery-ui/jquery-ui.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script src="{% static '/assets/vendor_plugins/DataTables-1.10.15/media/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/select2/dist/js/select2.full.js' %}"></script>
+<script src="{% static '/assets/vendor_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js' %}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        let stats = "{{ members.status }}"
+        if (stats=='0'||stats=='1') {
+            $('#status-footer').attr("hidden", true);
+        }
+        $('#div-alasan').attr("hidden", true);
+
+        $('#button-block').click(function () {
+            $('#div-alasan').attr("hidden", false);
+        })
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+
+{% if request.COOKIES.success_msg %}
+<div class="alert alert-success alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+    {{ request.COOKIES.success_msg }} </div>
+{% endif %}
+
+{% if request.COOKIES.error_msg %}
+<div class="alert alert-danger alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+    {{ request.COOKIES.error_msg }} </div>
+{% endif %}
+
+<div class="box box-default">
+    <!-- /.box-header -->
+    <div class="box-body">
+        <div class="box">
+            <div class="box-header with-border">
+                <h3>Data Perusahaan</h3>
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <!-- LEFT COLUMN -->
+                    <div class="col-md-6 col-12">
+                        <div class="form-group">
+                            <label>Nomor Induk Berusaha : </label>
+                            <div class="controls">
+                                <input type="text" value="{{ members.nib }}" class="form-control" disabled/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nomor Pokok Wajib Pajak : </label>
+                            <div class="controls">
+                                <input type="text" value="{{ members.npwp }}" class="form-control" disabled/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nama Perusahaan : </label>
+                            <div class="controls">
+                                <input type="text" value="{{ members.nama_perusahaan }}" class="form-control" disabled/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Alamat Perusahaan : </label>
+                            <div class="controls">
+                                <textarea rows="8" class="form-control" disabled>{{ members.alamat_perusahaan }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>No. Telepon Perusahaan : </label>
+                            <div class="controls">
+                                <input type="text" value="{{ members.no_telepon }}" class="form-control" disabled/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email : </label>
+                            <div class="controls">
+                                <input type="text" value="{{ members.member.email }}" class="form-control" disabled/>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- RIGHT COLUMN -->
+                    <div class="col-md-6 col-12">
+                        <div class="form-group">
+                            <label>Provinsi </label>
+                            <div class="controls">
+                                <input type="text" value="{{ members.provinsi.nama }}" class="form-control" disabled/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Kota / Kabupaten : </label>
+                            <div class="controls">
+                                <input type="text" value="{{ members.kota_kabupaten.nama }}" class="form-control" disabled/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Kecamatan : </label>
+                            <div class="controls">
+                                <input type="text" value="{{ members.kecamatan.nama }}" class="form-control" disabled/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Kelurahan : </label>
+                            <div class="controls">
+                                <input type="text" value="{{ members.kelurahan.nama }}" class="form-control" disabled/>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Kode Pos : </label>
+                            <div class="controls">
+                                <input type="text" value="{{ members.kode_pos }}" class="form-control" disabled/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Koordinat Kantor : </label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <label>Longitude</label>
+                                    <div class="controls">
+                                        <input type="text" value="{{ members.long_koordinat }}" class="form-control" disabled/>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <label>Latitude</label>
+                                    <div class="controls">
+                                        <input type="text" value="{{ members.lat_koordinat }}" class="form-control" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-12">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Data Pimpinan</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+
+                            <div class="col-md-12 col-12">
+                                <div class="form-group">
+                                    <label>Nama Direktur : </label>
+                                    <div class="controls">
+                                        <input type="text" class="form-control" autocomplete="off" value="{{ members.nama_direktur }}" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 col-12">
+                                <div class="form-group">
+                                    <label>NIK Direktur : </label>
+                                    <div class="controls">
+                                        <input type="text" class="form-control" autocomplete="off" value="{{ members.nik_direktur }}" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 col-12">
+                                <div class="form-group">
+                                    <label>No. HP Direktur : </label>
+                                    <div class="controls">
+                                        <input type="text" class="form-control" autocomplete="off" value="{{ members.no_hp_direktur }}" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 col-12">
+                                <div class="form-group">
+                                    <label>Tanggal Lahir Direktur : </label>
+                                    <div class="controls">
+                                        <input type="text" class="form-control" autocomplete="off" value="{{ members.tgl_lahir_direktur }}" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Akta Perusahaan</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-12 col-12">
+                                <div class="form-group">
+                                    <label>No. Akta Perusahaan : </label>
+                                    <div class="controls">
+                                        <input type="text" class="form-control" autocomplete="off" value="{{ members.nomor_akte }}" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 col-12">
+                                <div class="form-group">
+                                    <label>Tanggal Disahkan : </label>
+                                    <div class="controls">
+                                        <input type="text" class="form-control" autocomplete="off" value="{{ members.tgl_sah_akte }}" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 col-12">
+                                <div class="form-group">
+                                    <label>Tanggal Berdiri Perusahaan : </label>
+                                    <div class="controls">
+                                        <input type="text" class="form-control" autocomplete="off" value="{{ members.tgl_berdiri_akte }}" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-12">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Lampiran</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-12 col-12">
+                                <div class="form-group">
+                                    <a href="{% url 'member_download' files='nib' id=member_id %}" target="_blank"><i class="fa fa-download "></i> File Nomor Induk Berusaha</a>
+                                </div>
+                                <div class="form-group">
+                                    <a href="{% url 'member_download' files='npwp' id=member_id %}" target="_blank"><i class="fa fa-download "></i> File Nomor Pokok Wajib Pajak</a>
+                                </div>
+                                <div class="form-group">
+                                    <a href="{% url 'member_download' files='akte' id=member_id %}" target="_blank"><i class="fa fa-download "></i> File Akte</a>
+                                </div>
+                                <div class="form-group">
+                                    <a href="{% url 'member_download' files='ahu' id=member_id %}" target="_blank"><i class="fa fa-download "></i> File Administrasi Hukum Umum</a>
+                                </div>
+                                <div class="form-group">
+                                    <a href="{% url 'member_download' files='salinan_ktp' id=member_id %}" target="_blank"><i class="fa fa-download "></i> File Salinan KTP</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Status Pengguna</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-12 col-12">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        {% if members.status == 1 %}                                
+                                            <button type="button" class="btn btn-success btn-lg btn-block">Member Valid</button>
+                                        {% elif members.status == 0 %}
+                                            <button type="button" class="btn btn-danger btn-lg btn-block">Member Tidak Valid</button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-primary btn-lg btn-block">Member Baru</button>
+                                        {% endif %}
+
+                                        <div class="mt-20" >
+                                            Tanggal Validasi : {{ members.tgl_validasi }}
+                                        </div>
+
+                                    </div>
+                                    <div class="card-footer" id="status-footer">
+                                        <a href="{% url 'member_validasi' id=members.id %}" class="btn btn-success btn-lg mt-10 text-white" {% if members.status == 1 %}style="float: left; pointer-events: none;"{% else %}style="float: left"{% endif %}>Validasi Member</a>
+                                        <button class="btn btn-danger btn-lg mt-10 text-white" style="float: right;" id="button-block" {% if members.status == 0 %}disabled{% endif %}>Reject Member</button>
+                                    </div>
+                                    <div class="mt-10" id="div-alasan">
+                                        <form action="{% url 'member_block' id=members.id %}" method="post">
+                                            {% csrf_token %}
+                                            <div class="form-group">
+                                                <label>Alasan : </label>
+                                                <div class="controls">
+                                                    <textarea rows="8" class="form-control" name="alasan" id="alasan"></textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-success btn-lg mt-10 text-white" style="float: left;">Submit</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                  </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="box-footer">
+            <a href="{% url 'member_list' %}" class="btn btn-red">
+                <i class="fa fa-chevron-left"></i>
+                Back
+            </a>
+        </div>
+    </div>
+    <!-- /.box-body -->
+</div>
+  
+{% endblock %}

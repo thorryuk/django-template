@@ -1,0 +1,145 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load  static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/bootstrap-daterangepicker/daterangepicker.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_plugins/iCheck/all.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_plugins/timepicker/bootstrap-timepicker.min.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/select2/dist/css/select2.min.css' %}">
+{% endblock %}
+
+{% block javascript %}
+
+    <script src="{% static '/assets/vendor_components/select2/dist/js/select2.full.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/input-mask/jquery.inputmask.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/input-mask/jquery.inputmask.date.extensions.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/input-mask/jquery.inputmask.extensions.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/moment/min/moment.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-daterangepicker/daterangepicker.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/timepicker/bootstrap-timepicker.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/iCheck/icheck.min.js' %}"></script>
+    <script src="{% static 'js/pages/advanced-form-element.js'%}"></script>
+{% endblock %}
+
+{% block content %}
+    {% if request.COOKIES.success_msg %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.success_msg }} </div>
+    {% endif %}
+
+    {% if request.COOKIES.error_msg %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.error_msg }} </div>
+    {% endif %}
+
+    <div class="box box-default">
+        <!-- /.box-header -->
+        <div class="box-body">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active show" data-toggle="tab" href="{% url 'profile' %}" role="tab" aria-selected="true">
+                            <span class="hidden-sm-up">
+                                <i class="ion-home"></i>
+                            </span>
+                        <span class="hidden-xs-down">Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'change_password' %}" aria-selected="false">
+                            <span class="hidden-sm-up">
+                                <i class="ion-person"></i>
+                            </span>
+                        <span class="hidden-xs-down">Change Password</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content tabcontent-border">
+                <div class="tab-pane active show" id="profile" role="tabpanel">
+                    <div class="pad">
+                        <h3>Profile</h3>
+
+                        <div id="navpills-1" class="tab-pane active">
+                            <div class="row">
+
+                                <div class="col-md-4"> <img src="{{ user.nippon_user.profile_pict_url }}" class="img-fluid" alt=""> </div>
+                                <div class="col-md-8">
+                                    <form enctype="multipart/form-data" method="post">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label>First Name<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="text" value="{{ user.first_name }}" name="first_name" class="form-control"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Last Name<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="text" value="{{ user.last_name }}" name="last_name" class="form-control"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Email<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                {{ user.email }}
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Profile Picture : </label>
+                                            <div class="controls">
+                                                 <input type="file" name="profile_pict" class="form-control" aria-invalid="false">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Gender<span class="required_field">*</span> : </label>
+                                            <select class="form-control select2 w-p100" name="gender">
+                                                <option value="0">--- Gender --- </option>
+                                                <option value="male" {% if user.nippon_user.sex == 'male' %} selected {% endif %}>Male</option>
+                                                <option value="female" {% if user.nippon_user.sex == 'female' %} selected {% endif %}>Female</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Address<span class="required_field">*</span> : </label>
+                                            <textarea class="form-control" rows="3" placeholder="Enter Address ..." name="address">{{ user.nippon_user.address }}</textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Phone Number : </label>
+                                            <div class="controls">
+                                                <input type="text" name="phone" value="{{ user.nippon_user.phone_number }}" class="form-control"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Email Signature : </label>
+                                            <textarea class="form-control" rows="3" placeholder="Enter Email Signature ..." name="email_signature">{{ user.nippon_user.email_signature }}</textarea>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <a href="{% url 'user_list' %}" class="btn btn-red">
+                                                <i class="fa  fa-ban"></i>
+                                                Cancel
+                                            </a>
+                                            <button type="submit" class="btn btn-info pull-right">
+                                                <i class="fa fa-floppy-o"></i>
+                                                Update
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+    </div>
+{% endblock %}

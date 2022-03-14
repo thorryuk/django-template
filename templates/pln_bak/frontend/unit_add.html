@@ -1,0 +1,68 @@
+{% extends 'pln/frontend/layout/base_layout.html' %}
+
+{% load static %}
+
+
+{% block css %}
+    
+{% endblock %}
+
+
+{% block javascript %}
+    
+{% endblock %}
+
+
+{% block content %}    
+<!-- Hero -->
+<div class="bg-body-light">
+    <div class="content content-full">
+        <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+            <h1 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2">{{sub_title}}</h1>
+            <nav class="flex-sm-00-auto ml-sm-3" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">Unit</li>
+                    <li class="breadcrumb-item active" aria-current="page">Tambah</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+<!-- END Hero -->
+
+<!-- Page Content -->
+<div class="content">
+    <!-- Layouts -->
+    <div class="block block-rounded block-bordered">
+        <div class="block-header block-header-default">
+            <h3 class="block-title"></h3>
+        </div>
+        <div class="block-content">
+            <!-- Label on top Layout -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <!-- Form Labels on top - Default Style -->
+                    <form class="mb-5" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="nama_unit">Nama Unit</label>
+                            <input type="text" class="form-control" id="nama_unit" name="nama_unit" placeholder="Nama Unit ..">
+                        </div>
+                        <div class="form-group">
+                            <label for="kode_unit">Kode Unit</label>
+                            <input type="text" class="form-control" id="kode_unit" name="kode_unit" placeholder="Kode Unit ..">
+                        </div>
+                        <div class="form-group" style="float: right;">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                    <!-- END Form Labels on top - Default Style -->
+                </div>
+            </div>
+            <!-- END Label on top Layout -->
+        </div>
+    </div>
+    <!-- END Layouts -->
+</div>
+<!-- END Page Content -->
+{% endblock content %}

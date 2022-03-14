@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+    {% load static %}
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
+        <title>Perusahaan Listrik Negara - E-Request System</title>
+
+        <meta name="description" content="Dashmix - Bootstrap 4 Admin Template &amp; UI Framework created by pixelcave and published on Themeforest">
+        <meta name="author" content="pixelcave">
+        <meta name="robots" content="noindex, nofollow">
+
+        <!-- Open Graph Meta -->
+        <meta property="og:title" content="Dashmix - Bootstrap 4 Admin Template &amp; UI Framework">
+        <meta property="og:site_name" content="Dashmix">
+        <meta property="og:description" content="Dashmix - Bootstrap 4 Admin Template &amp; UI Framework created by pixelcave and published on Themeforest">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="">
+        <meta property="og:image" content="">            
+
+        <!-- Icons -->
+        <!-- The following icons can be replaced with your own, they are used by desktop and mobile browsers -->
+        <link rel="shortcut icon" href="{% static '/assets/dashmix/media/favicons/favicon.png' %}">
+        <link rel="icon" type="image/png" sizes="192x192" href="{% static '/assets/dashmix/media/favicons/favicon-192x192.png' %}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static '/assets/dashmix/media/favicons/apple-touch-icon-180x180.png' %}">
+        <!-- END Icons -->
+
+        {% block css %}
+        <!-- Stylesheets -->
+        <!-- Fonts and Dashmix framework -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,400i,600,700">
+        <link rel="stylesheet" id="css-main" href="{% static '/assets/dashmix/css/dashmix.min.css' %}">
+        <style>
+            .terms{
+                font-family: Calibri; 
+                font-size: 12,0000pt;
+            }
+        </style>
+        
+        <!-- You can include a specific file from css/themes/ folder to alter the default color theme of the template. eg: -->
+        <!-- <link rel="stylesheet" id="css-theme" href="/assets/dashmix/css/themes/xwork.min.css"> -->
+        <!-- END Stylesheets -->
+        {% endblock %}
+    </head>
+    <body>
+        <!-- Page Container -->
+        <!--
+            Available classes for #page-container:
+
+        GENERIC
+
+            'enable-cookies'                            Remembers active color theme between pages (when set through color theme helper Template._uiHandleTheme())
+
+        SIDEBAR & SIDE OVERLAY
+
+            'sidebar-r'                                 Right Sidebar and left Side Overlay (default is left Sidebar and right Side Overlay)
+            'sidebar-o'                                 Visible Sidebar by default (screen width > 991px)
+            'sidebar-o-xs'                              Visible Sidebar by default (screen width < 992px)
+            'sidebar-dark'                              Dark themed sidebar
+
+            'side-overlay-hover'                        Hoverable Side Overlay (screen width > 991px)
+            'side-overlay-o'                            Visible Side Overlay by default
+
+            'enable-page-overlay'                       Enables a visible clickable Page Overlay (closes Side Overlay on click) when Side Overlay opens
+
+            'side-scroll'                               Enables custom scrolling on Sidebar and Side Overlay instead of native scrolling (screen width > 991px)
+
+        HEADER
+
+            ''                                          Static Header if no class is added
+            'page-header-fixed'                         Fixed Header
+
+        HEADER STYLE
+
+            ''                                          Classic Header style if no class is added
+            'page-header-dark'                          Dark themed Header
+            'page-header-glass'                         Light themed Header with transparency by default
+                                                        (absolute position, perfect for light images underneath - solid light background on scroll if the Header is also set as fixed)
+            'page-header-glass page-header-dark'         Dark themed Header with transparency by default
+                                                        (absolute position, perfect for dark images underneath - solid dark background on scroll if the Header is also set as fixed)
+
+        MAIN CONTENT LAYOUT
+
+            ''                                          Full width Main Content if no class is added
+            'main-content-boxed'                        Full width Main Content with a specific maximum width (screen width > 1200px)
+            'main-content-narrow'                       Full width Main Content with a percentage width (screen width > 1200px)
+        -->
+        <div id="page-container">
+
+            <!-- Main Container -->
+            <main id="main-container">
+
+                <!-- Page Content -->
+                <div class="bg-image" style="background-image: url('/assets/dashmix/media/photos/photo12@2x.jpg');">
+                    <div class="row no-gutters justify-content-center bg-black-75">
+                        <!-- Main Section -->
+                        <div class="hero-static col-md-6 d-flex align-items-center bg-white">
+                            <div class="p-3 w-100">
+                                <!-- Header -->
+                                <div class="mb-3 text-center">
+                                    <a class="link-fx text-success font-w700 font-size-h1" href="index.html">
+                                        <span class="text-dark">Perusahaan Listrik </span><span class="text-success">Negara</span>
+                                    </a>
+                                    <p class="text-uppercase font-w700 font-size-sm text-muted">Create New Account</p>
+                                </div>
+                                <!-- END Header -->
+
+                                <!-- Sign In Form -->
+                                <!-- jQuery Validation (.js-validation-signup class is initialized in js/pages/op_auth_signup.js) -->
+                                <!-- For more info and examples you can check out https://github.com/jzaefferer/jquery-validation -->
+                                <div class="row no-gutters justify-content-center">
+                                    <div class="col-sm-8 col-xl-10">
+                                        <form class="js-validation-signup" action="{% url 'register' %}" method="post" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <div class="py-3">
+                                                <div class="form-group">
+                                                    <input required type="number" class="form-control form-control-lg form-control-alt" id="nib" name="nib" placeholder="Nomor Induk Berusaha">
+                                                </div>
+                                                <div class="form-group">
+                                                    <input required type="number" class="form-control form-control-lg form-control-alt" id="npwp" name="npwp" placeholder="Nomor Pokok Wajib Pajak">
+                                                </div>
+                                                <div class="form-group">
+                                                    <input required type="text" class="form-control form-control-lg form-control-alt" id="nama_perusahaan" name="nama_perusahaan" placeholder="Nama Perusahaan">
+                                                </div>
+                                                <div class="form-group">
+                                                    <textarea required class="form-control form-control-lg form-control-alt" name="alamat_perusahaan" id="alamat_perusahaan" cols="20" rows="5" placeholder="Alamat Perusahaan"></textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <select required class="form-control form-control-lg form-control-alt" id="provinsi" name="provinsi">
+                                                        <option value="0">Provinsi</option>
+                                                        {% for prov in provinsi %}
+                                                            <option value="{{ prov.id }}">{{ prov.nama }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <select required class="form-control form-control-lg form-control-alt" id="kota_kabupaten" name="kota_kabupaten">
+                                                        <option value="0">Kota / Kabupaten</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <select required class="form-control form-control-lg form-control-alt" id="kecamatan" name="kecamatan">
+                                                        <option value="0">Kecamatan</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <select required class="form-control form-control-lg form-control-alt" id="kelurahan" name="kelurahan">
+                                                        <option value="0">Kelurahan</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <input required type="number" class="form-control form-control-lg form-control-alt" id="kode_pos" name="kode_pos" placeholder="Kode Pos">
+                                                </div>
+                                                <div class="form-group">
+                                                    <input required type="text" class="form-control form-control-lg form-control-alt" id="longt" name="longt" placeholder="Longitude">
+                                                </div>
+                                                <div class="form-group">
+                                                    <input required type="text" class="form-control form-control-lg form-control-alt" id="lat" name="lat" placeholder="Latitude">
+                                                </div>
+                                                <div class="form-group">
+                                                    <input required type="number" class="form-control form-control-lg form-control-alt" id="telp" name="telp" placeholder="No. Telepon">
+                                                </div>
+                                                <div class="form-group">
+                                                    <input required type="email" class="form-control form-control-lg form-control-alt" id="email" name="email" placeholder="Email">
+                                                </div>
+                                                <div class="form-group">
+                                                    <input required type="password" class="form-control form-control-lg form-control-alt" id="password" name="password" placeholder="Password">
+                                                </div>
+                                                <div class="form-group">
+                                                    <input required type="text" class="form-control form-control-lg form-control-alt" id="nama_direktur" name="nama_direktur" placeholder="Nama Direktur">
+                                                </div>
+                                                <div class="form-group">
+                                                    <input required type="number" class="form-control form-control-lg form-control-alt" id="no_hp_direktur" name="no_hp_direktur" placeholder="No. HP Direktur">
+                                                </div>
+                                                <div class="form-group">
+                                                    <input required type="number" class="form-control form-control-lg form-control-alt" id="nik_direktur" name="nik_direktur" placeholder="NIK Direktur">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Tanggal Lahir Direktur <span class="text-danger">*</span></label>
+                                                    <input required type="date" class="form-control form-control-lg form-control-alt" id="tgl_lhr_dir" name="tgl_lhr_dir" placeholder="Tanggal Lahir Direktur">
+                                                </div>
+                                                <div class="form-group">
+                                                    <input required type="text" class="form-control form-control-lg form-control-alt" id="no_akte" name="no_akte" placeholder="No. Akte Perusahaan">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Tanggal Sah Akte <span class="text-danger">*</span></label>
+                                                    <input required type="date" class="form-control form-control-lg form-control-alt" id="tgl_sah" name="tgl_sah" placeholder="Tanggal Sah Akte">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Tanggal Berdiri Perusahaan <span class="text-danger">*</span></label>
+                                                    <input required type="date" class="form-control form-control-lg form-control-alt" id="tgl_berdiri_akte" name="tgl_berdiri_akte" placeholder="Tanggal Berdiri Perusahaan">
+                                                </div>
+                                                <small><span class="text-danger">File yang di upload harus berupa PDF</span></small>
+                                                <div class="form-group">
+                                                    <label>File Nomor Induk Berusaha <span class="text-danger">*</span></label>
+                                                    <input required accept="application/pdf" type="file" class="form-control form-control-lg form-control-alt" id="file_nib" name="file_nib">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>File Akte Perusahaan <span class="text-danger">*</span></label>
+                                                    <input required accept="application/pdf" type="file" class="form-control form-control-lg form-control-alt" id="file_akte" name="file_akte">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>File Nomor Pokok Wajib Pajak <span class="text-danger">*</span></label>
+                                                    <input required accept="application/pdf" type="file" class="form-control form-control-lg form-control-alt" id="file_npwp" name="file_npwp">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>File Administrasi Hukum Umum <span class="text-danger">*</span></label>
+                                                    <input required accept="application/pdf" type="file" class="form-control form-control-lg form-control-alt" id="file_ahu" name="file_ahu">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>File Salinan KTP Direktur<span class="text-danger">*</span></label>
+                                                    <input required accept="application/pdf" type="file" class="form-control form-control-lg form-control-alt" id="file_salinan_ktp" name="file_salinan_ktp">
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input" id="signup-terms" name="signup-terms">
+                                                        <label class="custom-control-label" for="signup-terms">I agree to Terms &amp; Conditions</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-block btn-hero-lg btn-hero-success">
+                                                    <i class="fa fa-fw fa-plus mr-1"></i> Sign Up
+                                                </button>
+                                                <p class="mt-3 mb-0 d-lg-flex justify-content-lg-between">
+                                                    <a class="btn btn-sm btn-light d-block d-lg-inline-block mb-1" href="{% url 'login' %}">
+                                                        <i class="fa fa-sign-in-alt text-muted mr-1"></i> Sign In
+                                                    </a>
+                                                    <a class="btn btn-sm btn-light d-block d-lg-inline-block mb-1" href="#" data-toggle="modal" data-target="#modal-terms">
+                                                        <i class="fa fa-book text-muted mr-1"></i> Read Terms
+                                                    </a>
+                                                </p>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <!-- END Sign Up Form -->
+                            </div>
+                        </div>
+                        <!-- END Main Section -->
+                    </div>
+                </div>
+                <!-- END Page Content -->
+
+            </main>
+            <!-- END Main Container -->
+        </div>
+        <!-- END Page Container -->
+
+        <!-- Terms Modal -->
+        <div class="modal fade" id="modal-terms" tabindex="-1" role="dialog" aria-labelledby="modal-terms" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="block block-themed block-transparent mb-0">
+                        <div class="block-header bg-primary-dark">
+                            <h3 class="block-title">Terms &amp; Conditions</h3>
+                            <div class="block-options">
+                                <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                    <i class="fa fa-fw fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="block-content">
+                            <p><span>SYARAT DAN KETENTUAN</span></p>
+                            <p><span>Versi 2021.08.18</span></p>
+                            <p><span>ALUR PROSES</span></p>
+                            <ol>
+                                <li><span>Permohonan akan dilakukan survey terlebih dahulu untuk dibuatkan kajian.</span></li>
+                                <li><span>Hasil kajian akan dilakukan diskusi bersama.</span></li>
+                                <li><span>Pada saat diskusi sudah harus disepakati metode pelayanan yang dipilih.</span></li>
+                                <li><span>Tanda tangan Perjanjian Jual Beli Tenaga Listrik berdasarkan metode pelayanan yang dipilih</span></li>
+                                <li><span>Nomor Register diberikan setelah PJBTL ditandatangani para pihak.</span></li>
+                                <li><span>Saat akan dilakukan pembayaran, dikomunikasikan dengan Account Executive atau Representative dari pihak PLN terlebih dahulu.</span></li>
+                                <li><span>Pekerjaan akan dimulai setelah pembayaran dilakukan.</span></li>
+                            </ol>
+
+
+                            <p><span>TINGKAT MUTU PELAYANAN</span></p>
+                            <ol>
+                                <li><span>Tegangan Rendah</span>
+                                    <ul>
+                                        <li><span>Tanpa perluasan = 5 hari kerja</span></li>
+                                        <li><span>Perluasan tiang = 15 hari kerja</span></li>
+                                        <li><span>Pembangunan gardu = 25 hari kerja</span></li>
+                                    </ul>
+                                </li>
+                                <li><span>Tegangan Menengah,</span>
+                                    <ul>
+                                        <li><span>Tanpa perluasan = 15 hari kerja</span></li>
+                                        <li><span>Perluasan tiang = 100 hari kerja</span></li>
+                                        <li><span>Pembangunan gardu = 100 hari kerja</span></li>
+                                    </ul>
+                                </li>
+                            </ol>
+
+
+                            <p><span>PEMBAHASAN SKEMA PELAYANAN</span></p>
+                            <ol>
+                                <li><span>Pada saat pembahasan skema, harus sudah diputuskan opsi yang diberikan.</span></li>
+                                <li><span>Pemohon memastikan kesiapan internalnya dalam melakukan pengambilan keputusan.</span></li>
+                                <li><span>Jika mengkuasakan, maka penerima kuasa diberikan kewenangan untuk memutuskan.</span></li>
+                                <li><span>Jika tidak ada keputusan saat pembahasan skema maka permohonan tidak dapat dilanjutkan (jika sudah bayar maka dilakukan restitusi).</span></li>
+                            </ol>
+                            <p><span>LAHAN DAN BANGUNAN GARDU (POWER HOUSE) PLN</span></p>
+                            <ol>
+                                <li><span>Pemohon menyediakan lahan gardu dengan ukuran standar 4,5 x 5 meter untuk gardu sipil (Power House) milik PLN.</span></li>
+                                <li><span>Pemohon bersama tim Konstruksi PLN melakukan survey bersama untuk menentukan lokasi lahan gardu.</span></li>
+                                <li><span>Penyediaan lahan gardu yang disepakati dibuatkan Berita Acara Tanah Gardu (BATG) yang ditanda tangani Notaris.</span></li>
+                                <li><span>Pemohon membangun gardu sipil (Power House) ukuran standar 4,5 x 5 meter untuk peralatan milik PLN.</span></li>
+                            </ol>
+
+
+                            <p><span>INSTALASI BANGUNAN</span></p>
+                            <ol>
+                                <li><span>Pemohon Tegangan Menengah menyediakan Kubikel, CBOG, Trafo &nbsp;dan Panel Instalasi yang ditempatkan pada gardu sipil (Power House) milik pemohon.</span></li>
+                                <li><span>Menyiapkan SLO sebelum dilakukan penyambungan.</span></li>
+                            </ol>
+                            
+                            
+                            <p><span>LAYANAN MULTIGUNA</span></p>
+                            <ol>
+                                <li><span>Jika pada saat dilakukan survey di lokasi masih terdapat kegiatan konstruksi atau belum ada kegiatan usaha maka akan didaftarkan dengan tarif L terlebih dahulu.</span></li>
+                                <li><span>Pemohon dapat melakukan permohonan perubahan golongan tarif dengan menunjukan sudah selesainya kegiatan konstruksi atau sudah ada kegiatan usaha sesuai Izin Usaha.</span></li>
+                                <li><span>Perubahan tarif dapat dilakukan pada bulan berikutnya setelah permohonan perubahan tarif diajukan.</span></li>
+                            </ol>
+                            
+                            
+                            <p><span>PENAWARAN PRODUK LAYANAN</span></p>
+                            <ol>
+                                <li><span>Produk layanan premium yang memberikan solusi atas kebutuhan khusus operasional disisi pemohon.</span></li>
+                                <li><span>Produk fasilitas ekstra yang memberikan solusi atas kebutuhan penyediaan dan pemeliharaan infrastruktur kelistrikan yang menjadi tanggung jawab pemohon disediakan oleh PLN seperti DRUPS, RUPS, UPS, Genset, Trafo dalam mekanisme sewa atau mekanisme bisnis lainnya.</span></li>
+                                <li><span>Produk Renewable Energy Certificate yang memberikan solusi atas kebutuhan sumber energi bersih untuk mendukung program EBT dari Pemerintah maupun target internal pemohon.</span></li>
+                                <li><span>Produk ListriQu yang memberikan solusi atas kebutuhan instalasi milik pelanggan yang disediakan oleh PT Haleyora Power (PLN Group).</span></li>
+                                <li><span>Produk Iconnet yang memberikan solusi atas kebutuhan jaringan data pelanggan yang disediakan oleh PT Icon Plus</span></li>
+                            </ol>
+                            
+                            
+                            <p><span>KEBIJAKAN PEMASARAN</span></p>
+                            <ol>
+                                <li><span>PLN melakukan evaluasi risiko Biaya Investasi, sehingga hasil kajian akan dilakukan diskusi sekaligus penyampaian opsi skema pelayanan.</span></li>
+                                <li><span>Saat penyambungan sudah siap dilakukan tapi terdapat kendala penyambungan dari sisi pemohon (diantaranya belum ada: SLO, BATG, RKS SKTR, STO SKTR atau masalah lainnya) maka mutasi akan tetap dilakukan dan tagihan rekening listrik sudah mulai ditagihkan pada bulan berikutnya tetapi belum ada tegangan listrik.</span></li>
+                            </ol>
+                            
+                            
+                            <p><span>INFORMASI LAINNYA</span></p>
+                            <ol>
+                                <li><span>Kesepakatan para pihak akan ada di Perjanjian Jual Beli Tenaga Listrik.</span></li>
+                                <li><span>Para pihak menyiapkan Pic untuk berkoordinasi terkait proses administrasi dan proses penyambungan sehingga komunikasi hanya kepada Pic yang ditunjuk.</span></li>
+                                <li><span>Jalur komunikasi dokumen melalui media surat elektronik (email) dengan alamat surel yang terdaftar.</span></li>
+                                <li><span>Formulir yang diterbitkan dalam setiap pertemuan, menjadi tanggung jawab pemohon untuk menyampaikan informasi tersebut kepada yang berkepentingan dipihak pemohon.</span></li>
+                                <li><span>Perjanjian Jual Beli Tenaga Listrik harus sudah dikembalikan maksimal 3 hari kerja setelah diterima.</span></li>
+                                <li><span>Hasil kajian survey berlaku maksimal 1 bulan setelah dilakukannya diskusi setelah itu dilakukan kajian ulang yang dapat terjadi perubahan nilai biaya.</span></li>
+                                <li><span>Jika dokumen ini sudah ditandatangani namun tidak dipenuhi oleh pemohon maka permohonan tidak dapat dilanjutkan.</span></li>
+                            </ol>
+                        </div>
+                        <div class="block-content block-content-full text-right bg-light">
+                            <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Done</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END Terms Modal -->
+
+        
+        {% block javascript %}
+        <!--
+            Dashmix JS Core
+            
+            Vital libraries and plugins used in all pages. You can choose to not include this file if you would like
+            to handle those dependencies through webpack. Please check out /assets/dashmix/_es6/main/bootstrap.js for more info.
+            
+            If you like, you could also include them separately directly from the /assets/dashmix/js/core folder in the following
+            order. That can come in handy if you would like to include a few of them (eg jQuery) from a CDN.
+            
+            /assets/dashmix/js/core/jquery.min.js
+            /assets/dashmix/js/core/bootstrap.bundle.min.js
+            /assets/dashmix/js/core/simplebar.min.js
+            /assets/dashmix/js/core/jquery-scrollLock.min.js
+            /assets/dashmix/js/core/jquery.appear.min.js
+            /assets/dashmix/js/core/js.cookie.min.js
+        -->
+        <script src="{% static '/assets/dashmix/js/dashmix.core.min.js' %}"></script>
+        
+        <!--
+            Dashmix JS
+            
+            Custom functionality including Blocks/Layout API as well as other vital and optional helpers
+            webpack is putting everything together at /assets/dashmix/_es6/main/app.js
+        -->
+        <script src="{% static '/assets/dashmix/js/dashmix.app.min.js' %}"></script>
+        
+        <!-- Page JS Plugins -->
+        <script src="{% static '/assets/dashmix/js/plugins/jquery-validation/jquery.validate.min.js' %}"></script>
+        
+        <!-- Page JS Code -->
+        <script src="{% static '/assets/dashmix/js/pages/op_auth_signup.min.js' %}"></script>
+
+        <!-- Page JS Plugins -->
+        <script src="{% static '/assets/dashmix/js/plugins/bootstrap-notify/bootstrap-notify.min.js' %}"></script>
+        
+        <!-- Custom Javascript -->
+        <script>
+            let base_url = "{{ frontend_url }}"
+            $(document).ready(function(){
+                $('#provinsi').change(function () {
+                    var val_provinsi = $(this).val();
+                    $.ajax({
+                        url: base_url + "api/kota-kabupaten?provinsi=" + val_provinsi,
+                        dataType: "json",
+                        beforeSend: function(){
+                            $("#kota_kabupaten").empty();
+                        }
+                    }).done(function( data ) {
+                        var total_data = data.length;
+                        if(total_data > 0 ){
+                            $.map( data, function( item ) {
+                                $('#kota_kabupaten').append('<option value="'+item.id+'">' + item.nama + '</option>');
+                            });
+                        }else{
+                            $('#kota_kabupaten').append('<option value="-">-</option>');
+                        }
+                        $("#kota_kabupaten").trigger("chosen:updated");
+                        $("#kota_kabupaten").trigger("liszt:updated");
+                    });
+                });
+
+                $('#kota_kabupaten').change(function () {
+                    var val_kotkab = $(this).val();
+                    $.ajax({
+                        url: base_url + "api/kecamatan?kota_kabupaten=" + val_kotkab,
+                        dataType: "json",
+                        beforeSend: function(){
+                            $("#kecamatan").empty();
+                        }
+                    }).done(function( data ) {
+                        var total_data = data.length;
+                        if(total_data > 0 ){
+                            $.map( data, function( item ) {
+                                $('#kecamatan').append('<option value="'+item.id+'">' + item.nama + '</option>');
+                            });
+                        }else{
+                            $('#kecamatan').append('<option value="-">-</option>');
+                        }
+                        $("#kecamatan").trigger("chosen:updated");
+                        $("#kecamatan").trigger("liszt:updated");
+                    });
+                });
+
+                $('#kecamatan').change(function () {
+                    var val_kotkab = $(this).val();
+                    $.ajax({
+                        url: base_url + "api/kelurahan?kecamatan=" + val_kotkab,
+                        dataType: "json",
+                        beforeSend: function(){
+                            $("#kelurahan").empty();
+                        }
+                    }).done(function( data ) {
+                        var total_data = data.length;
+                        if(total_data > 0 ){
+                            $.map( data, function( item ) {
+                                $('#kelurahan').append('<option value="'+item.id+'">' + item.nama + '</option>');
+                            });
+                        }else{
+                            $('#kelurahan').append('<option value="-">-</option>');
+                        }
+                        $("#kelurahan").trigger("chosen:updated");
+                        $("#kelurahan").trigger("liszt:updated");
+                    });
+                });
+            })
+        </script>
+        {% if request.COOKIES.error_msg %}
+            <script>
+                $( document ).ready(function() {
+                    Dashmix.helpers('notify', {type: 'danger', align: 'center', icon: 'fa fa-times mr-1', message: '{{ request.COOKIES.error_msg }}'});
+                });
+            </script>
+        {% endif %}
+        {% endblock %}
+    </body>
+</html>

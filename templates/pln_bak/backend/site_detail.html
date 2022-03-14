@@ -1,0 +1,167 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load  static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/select2/dist/css/select2.min.css' %}">
+{% endblock %}
+
+{% block javascript %}
+
+    <script src="{% static '/assets/vendor_components/select2/dist/js/select2.full.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/input-mask/jquery.inputmask.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/input-mask/jquery.inputmask.date.extensions.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/input-mask/jquery.inputmask.extensions.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/moment/min/moment.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-daterangepicker/daterangepicker.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/timepicker/bootstrap-timepicker.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/iCheck/icheck.min.js' %}"></script>
+    <script src="{% static 'js/pages/advanced-form-element.js'%}"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#country').change(function () {
+                var val_country = $(this).val();
+                $.ajax({
+                    url: backend_base_url + "api/city_by_country?country=" + val_country,
+                    dataType: "json",
+                    beforeSend: function(){
+                        $("#city").empty();
+                    }
+                }).done(function( data ) {
+                    var total_data = data.length;
+                    if(total_data > 0 ){
+                        $.map( data, function( item ) {
+                            $('#city').append('<option value="'+item.id+'">' + item.name + '</option>');
+                        });
+                    }else{
+                        $('#city').append('<option value="-">-</option>');
+                    }
+                    $("#city").trigger("chosen:updated");
+                    $("#city").trigger("liszt:updated");
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% if request.COOKIES.success_msg %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.success_msg }} </div>
+    {% endif %}
+
+    {% if request.COOKIES.error_msg %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.error_msg }} </div>
+    {% endif %}
+
+    <div class="box box-default">
+        <!-- /.box-header -->
+        <div class="box-header with-border">
+            <h3 class="box-title">Site Data</h3>
+        </div>
+        <div class="box-body">
+            <form method="post" enctype="application/x-www-form-urlencoded">
+                {% csrf_token %}
+                <div class="pad">
+                    <!-- <h3>Site Data</h3> -->
+
+                    <div id="navpills-1" class="tab-pane active">
+                        <div class="row">
+                            <div class="col-md-6 col-12">
+                                <div class="form-group">
+                                    <label>Name<span class="required_field">*</span> : </label>
+                                    <div class="controls">
+                                        <input type="text" name="name" autocomplete="off" class="form-control" value="{{ site.name }}"/>
+                                    </div>
+                                </div>
+                                <!-- /.form-group -->
+                                <div class="form-group">
+                                    <label>Mobile Phone<span class="required_field">*</span> : </label>
+                                    <div class="controls">
+                                        <input type="text" name="mobile_phone" autocomplete="off" class="form-control" value="{{ site.mobile_phone }}"/>
+                                    </div>
+                                </div>
+                                <!-- /.form-group -->
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-md-6 col-12">
+                                <div class="form-group">
+                                    <label>Email<span class="required_field">*</span> : </label>
+                                    <div class="controls">
+                                        <input type="text" name="email" autocomplete="off" class="form-control" value="{{ site.email }}"/>
+                                    </div>
+                                </div>
+                                <!-- /.form-group -->
+                                <div class="form-group">
+                                    <label>Phone Number<span class="required_field">*</span> : </label>
+                                    <div class="controls">
+                                        <input type="text" name="phone_number" autocomplete="off" class="form-control" value="{{ site.phone_number }}"/>
+                                    </div>
+                                </div>
+                                <!-- /.form-group -->
+                            </div>
+
+                            <div class="col-md-12 col-12">
+                                <div class="form-group">
+                                    <label>Address<span class="required_field">*</span> : </label>
+                                    <textarea class="form-control" autocomplete="off" rows="3" placeholder="Enter Address ..." name="address">{{ site.address }}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-12">
+                                <div class="form-group">
+                                    <label>Country<span class="required_field">*</span> : </label>
+                                    <select class="form-control select2 w-p100" name="country" id="country">
+                                        <option value="0">--- Country --- </option>
+                                        {% for country in countries %}
+                                            <option value="{{ country.id }}" {% if country.id == site.country_id %} selected {% endif %}>{{ country.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Postal Code<span class="required_field">*</span> : </label>
+                                    <div class="controls">
+                                        <input type="text" name="postal_code" autocomplete="off" class="form-control" value="{{ site.postal_code }}"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-12">
+                                <div class="form-group">
+                                    <label>City<span class="required_field">*</span> : </label>
+                                    <select class="form-control select2 w-p100" name="city" id="city">
+                                        <option value="0">--- City --- </option>
+                                        {% for city in cities %}
+                                            <option value="{{ city.id }}" {% if city.id == site.city_id %} selected {% endif %}>{{ city.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Button Submit -->
+                            <div class="col-md-6 col-12">
+                                <a href="{% url 'site_list' %}" class="btn btn-red">
+                                    <i class="fa fa-ban"></i>
+                                    Cancel
+                                </a>
+                            </div>
+
+                            <div class="col-md-6 col-12">
+                                <button type="submit" class="btn btn-info pull-right">
+                                    <i class="fa fa-floppy-o"></i>
+                                    Update
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+            </form>
+        </div>
+    </div>
+    <!-- /.box-body -->
+    </div>
+{% endblock %}

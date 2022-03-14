@@ -1,0 +1,89 @@
+{% load  static %}
+
+{% block css %} 
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/bootstrap/dist/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static '/css/bootstrap-extend.css' %}">    
+    <link rel="stylesheet" href="{% static '/css/master_style.css' %}">
+    <link rel="stylesheet" href="{% static '/css/skins/_all-skins.css' %}">
+{% endblock %}
+
+
+
+{% block javascript %}
+<script type="text/javascript">
+    var backend_base_url = 'http://nippon-express.com:8043/'
+</script>
+<script src="{% static '/assets/vendor_components/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/popper/dist/popper.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/bootstrap/dist/js/bootstrap.js' %}"></script>
+<script src="{% static '/assets/vendor_components/jquery-slimscroll/jquery.slimscroll.js' %}"></script>
+<script src="{% static '/assets/vendor_components/fastclick/lib/fastclick.js' %}"></script>
+<script src="{% static 'js/template.js' %}"></script>
+<script src="{% static 'js/demo.js' %}"></script>
+<script src="{% static '/assets/vendor_components/jquery-ui/jquery-ui.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script src="{% static '/assets/vendor_plugins/DataTables-1.10.15/media/js/jquery.dataTables.min.js' %}"></script>
+<script>
+    $(function () {
+        "use strict";
+
+        $('#userJobList').DataTable({
+            'paging'      : true,
+            'lengthChange': false,
+            'searching'   : false,
+            'autoWidth'   : false,
+            'processing': true,
+            'serverSide': true,
+            'ajax': {
+                url: "{% url 'job_user_list_ajax' %}",
+                data : function(d){
+                    d.jobID = $('#job_id').val();
+                }
+              },
+            'ordering': false
+        });
+
+    }); // End of use strict
+</script>
+
+<div class="box box-default">
+    <!-- /.box-header -->
+    <div class="box-body">
+        <div class="tab-content tabcontent-border">
+            <div class="tab-pane fade show active" id="job_detail" role="tabpanel">
+                <div class="pad">
+                    <div class="box">
+                        <div class="col-md-6 mb-4">
+                            <h4 class="text-biodata">Data Pekerjaan</h4>
+                            <table>
+                                <tr>
+                                    <td>Nama Pekerjaan</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ job_detail.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Deskripsi</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ job_detail.description }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Posisi</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ job_detail.position }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Level </td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ job_detail.job_level }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.box-body -->
+</div>
+{% endblock %}

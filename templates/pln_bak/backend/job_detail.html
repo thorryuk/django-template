@@ -1,0 +1,507 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load  static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/select2/dist/css/select2.min.css' %}">
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static '/assets/vendor_components/jquery-ui/jquery-ui.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script src="{% static '/assets/vendor_plugins/DataTables-1.10.15/media/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/select2/dist/js/select2.full.js' %}"></script>
+<script src="{% static '/assets/vendor_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js' %}"></script>
+<script>
+    $(function () {
+        "use strict";
+
+        $('.select2').select2();
+        
+        //Date picker
+        $('#expiring-date').datepicker({
+            autoclose: true,
+            format: 'dd/mm/yyyy',
+            disableTouchKeyboard: true
+        });
+
+        $('#userJobList').DataTable({
+            'paging'      : true,
+            'lengthChange': false,
+            'searching'   : false,
+            'autoWidth'   : false,
+            'processing': true,
+            'serverSide': true,
+            'ajax': {
+                url: "{% url 'job_user_list_ajax' %}",
+                data : function(d){
+                    d.jobID = $('#job_id').val();
+                }
+              },
+            'ordering': false
+        });
+
+
+    }); // End of use strict
+</script>
+
+<script type="text/javascript">
+    function reset_nomor(){
+        $('.nomor').each(function (index) {
+            $(this).html((index + 1) + '. ');
+        });
+    }
+
+    $(document).ready(function () {
+
+        // ckeditor
+        initSample();
+
+        reset_nomor();
+
+        $('#add_question').click(function () {
+            var question_id = $('#question').val();
+            if(question_id != 0){
+                $.ajax({
+                url: backend_base_url + "api/question_by_id?id=" + question_id,
+                dataType: "json",
+                beforeSend: function(){
+
+                }
+                }).done(function( data ) {
+                    var total_data = data.length;
+                    if(total_data > 0 ){
+                        $.map( data, function( item, key ) {
+                            var answer_select_list = '<div class="media"><div class="media-body">';
+                            answer_select_list += '<input type="hidden" name="question_value[]" ' +
+                                'value="'+ item.question_id +'">';
+                            answer_select_list += '<p><strong><span class="nomor">' + (key + 1) + '.</span> ' + item.question_text + ': </strong></p>';
+
+                                $.map( item.answers, function( answer_item, key2 ) {
+                                    answer_select_list += '<p style="margin-left: 10px;">' + String.fromCharCode(97 + (key2)) + '. ' + answer_item.answer + '</p>';
+                                });
+
+                            answer_select_list += '<div class="media-block-actions">' +
+                                '<nav class="nav nav-dot-separated no-gutters">&nbsp;</nav>' +
+                                '<nav class="nav no-gutters gap-2 font-size-16 media-hover-show">' +
+                                '<a class="nav-link text-danger" href="#" data-toggle="tooltip" title="" ' +
+                                'data-original-title="Delete">' +
+                                '<i class="ion-close"></i></a></nav></div>';
+                            answer_select_list += '</div></div>';
+                            $('#answer_list').append(answer_select_list);
+                        });
+                        $('#question').val('0').trigger('change.select2');
+                        reset_nomor();
+                    }
+                });
+            }else{
+                alert('Please select another question');
+            }
+        });
+
+        $('#answer_list').on('click', 'a', function(){
+
+            $(this).closest('.media').remove();
+            reset_nomor();
+        });
+
+        $("#add-major").click(function(){
+            $("#major-div").append('\
+                <div class="form-group" id="add-div"> \
+                    <label>Jurusan<span class="required_field">*</span> : </label> \
+                    <a class="float-right text-danger" data-toggle="tooltip" data-original-title="Delete" href="#"><i class="ion-close"></i></a>\
+                    <br>\
+                    <select class="form-control select2 w-p100" name="major[]" id="major"> \
+                        <option value="0">--- Jurusan --- </option> \
+                        <option value="Tidak Ada">Tidak Ada </option> \
+                        {% for prodi in jurusan %} \
+                            <option value="{{ prodi.name }}">{{ prodi.name }}</option> \
+                        {% endfor %} \
+                    </select> \
+                </div> \
+            ');
+        });
+
+        $('#major-div').on('click', 'a', function(){
+            $(this).closest('#add-div').remove();
+        });
+
+        $("#add-departement").click(function(){
+            $("#departement-div").append('\
+                <div class="form-group" id="add-div-dep"> \
+                    <label>Email Departement<span class="required_field">*</span> : </label> \
+                    <a class="float-right text-danger" data-toggle="tooltip" data-original-title="Delete" href="#"><i class="ion-close"></i></a>\
+                    <br>\
+                    <input type="email" name="e_departement[]" id="e_departement" class="form-control" autocomplete="off" required/> \
+                </div> \
+            ');
+        });
+
+        $('#departement-div').on('click', 'a', function(){
+            $(this).closest('#add-div-dep').remove();
+        });
+    });
+
+</script>
+{% endblock %}
+
+{% block content %}
+
+{% if request.COOKIES.success_msg %}
+<div class="alert alert-success alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+    {{ request.COOKIES.success_msg }} </div>
+{% endif %}
+
+{% if request.COOKIES.error_msg %}
+<div class="alert alert-danger alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+    {{ request.COOKIES.error_msg }} </div>
+{% endif %}
+
+<div class="box box-default">
+    <!-- /.box-header -->
+    <div class="box-body">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#job_detail" role="tab" aria-selected="true">
+                    <span class="hidden-sm-up">
+                        <i class="ion-home"></i>
+                    </span>
+                    <span class="hidden-xs-down">Detail Job</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'job_applicant' id=job_id %}" role="tab" aria-selected="false">
+                    <span class="hidden-sm-up">
+                        <i class="ion-person"></i>
+                    </span>
+                    <span class="hidden-xs-down">Job Applicant</span>
+                </a>
+            </li>
+            <!-- <li class="nav-item">
+                <a class="nav-link" href="{% url 'job_applicant' id=job_id %}" role="tab" aria-selected="false">
+                    <span class="hidden-sm-up">
+                        <i class="ion-person"></i>
+                    </span>
+                    <span class="hidden-xs-down">Interview List</span>
+                </a>
+            </li> -->
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content tabcontent-border">
+            <div class="tab-pane fade show active" id="job_detail" role="tabpanel">
+                <div class="pad">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="box">
+                            <h3>Detail Pekerjaan</h3>
+                            <div class="box-body">
+                                <div class="row">
+                    
+                                    <!-- LEFT COLUMN -->
+                                    <div class="col-md-6 col-12">
+                                        <!-- get ID JOB -->
+                                        <input type="hidden" id="job_id" name="job_id" value="{{ job_detail.id }}" />
+                                        <!-- ========== -->
+                                        <div class="form-group">
+                                            <label>Nama Pekerjaan : </label>
+                                            <div class="controls">
+                                                <input type="text" value="{{ job_detail.name }}" class="form-control" id="name" name="name" />
+                                            </div>
+                                        </div>
+        
+                                        <div class="form-group">
+                                            <label>Posisi Pekerjaan : </label>
+                                            <div class="controls">
+                                                <input type="text" value="{{ job_detail.position }}" class="form-control" id="position" name="position" />
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Jenis Pekerjaan<span class="required_field">*</span> : </label>
+                                            <select class="form-control select2 w-p100" name="type_work" id="type_work">
+                                                <option value="0">--- Jenis Pekerjaan --- </option>
+                                                <option value="penuh" {% if 'penuh' == job_detail.type_of_work %} selected {% endif %}>Penuh</option>
+                                                <option value="paruh_waktu" {% if 'paruh_waktu' == job_detail.type_of_work %} selected {% endif %}>Paruh Waktu</option>
+                                                <option value="kontrak" {% if 'kontrak' == job_detail.type_of_work %} selected {% endif %}>Kontrak</option>
+                                                <option value="temporer" {% if 'temporer' == job_detail.type_of_work %} selected {% endif %} >Temporer</option>
+                                                <option value="magang" {% if 'magang' == job_detail.type_of_work %} selected {% endif %}>Magang</option>
+                                            </select>
+                                        </div>
+        
+                                        <div class="form-group">
+                                            <label>Tingkat Jabatan : </label>
+                                            <div class="controls">
+                                                <input type="text" name="job_level" value="{{ job_detail.job_level }}" class="form-control" />
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            {% if request.user.roleuser.role_group.name == 'hr' or request.user.roleuser.role_group.name == 'departement' %}
+                                            <label>Site<span class="required_field">*</span> : </label>
+                                            <input type="hidden" value="{{ request.user.user_hr.site.id }}" name="site" id="site">
+                                            <input type="text" class="form-control" autocomplete="off" value="{{ request.user.user_hr.site.name }}" name="name_site" id="name_site" disabled>
+                                            {% else %}
+                                            <label>Site : </label>
+                                            <select class="form-control select2 w-p100" name="site" id="site">
+                                                <option value="0">--- Sites --- </option>
+                                                {% for site in sites %}
+                                                <option value="{{ site.id }}" {% if site.id == job_detail.site_id %} selected {% endif %}>{{ site.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Kriteria SIM<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="radio" id="tidak_ada" name="sim" class="form-control" value="tidak_ada" {% if job_detail.sim == "tidak_ada" %} checked {% endif %}/>
+                                                <label for="tidak_ada">Tidak Ada</label>
+                                                <br>
+                                                <input type="radio" id="sim_a" name="sim" class="form-control" value="A" {% if job_detail.sim == "A" %} checked {% endif %}/>
+                                                <label for="sim_a">A</label>
+                                                <br>
+                                                <input type="radio" id="sim_b1" name="sim" class="form-control" value="B1" {% if job_detail.sim == "B1" %} checked {% endif %}/>
+                                                <label for="sim_b1">B1</label>
+                                                <br>
+                                                <input type="radio" id="sim_b2" name="sim" class="form-control" value="B2" {% if job_detail.sim == "B2" %} checked {% endif %}/>
+                                                <label for="sim_b2">B2 Umum</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                    
+                                    <!-- RIGHT COLUMN -->
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label>Deskripsi Pekerjaan<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <textarea rows="8" name="desc" id="editor" class="form-control">{{ job_detail.description }}</textarea>
+                                            </div>
+                                        </div>
+                
+                                        <div class="form-group">
+                                            <label>Spesialis Pekerjaan<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="text" name="specialist" class="form-control" autocomplete="off" value="{{ job_detail.job_specialist }}"/>
+                                            </div>
+                                        </div>
+                
+                                        <div class="form-group">
+                                            <label>Tanggal Berakhir<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <input type="text" name="expiring_date" id="expiring-date" class="form-control" data-inputmask="'alias': 'dd/mm/yyyy'" value="{{ str_date }}" data-mask/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>&nbsp; </label>
+                                            <div class="controls">
+                                                <button type="button" class="btn btn-info" id="add-departement"> <i class="fa fa-plus"></i> Tambah Departement </button>
+                                            </div>
+                                        </div>
+                                        {% for data in job_detail.email_departement %}
+                                        <div class="form-group">
+                                            <label>Email Departement<span class="required_field">*</span> : </label>
+                                            {% if data.id > 1 %}
+                                            <a class="float-right text-danger" data-toggle="tooltip" data-original-title="Delete" href="{% url 'job_delete_email' id=job_id id_email=data.id %}"><i class="ion-close"></i></a>
+                                            {% endif %}
+                                            <br>
+                                            <input type="email" value="{{ data.email }}" name="e_departement[]" id="e_departement" class="form-control" autocomplete="off" required/>
+                                        </div>
+                                        {% endfor %}
+                                        <div id="departement-div">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6 col-12">
+                                <div class="box">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">Parameter Kandidat</h3>
+                                    </div>
+                                    <div class="box-body">
+                                        <div class="row">
+                
+                                            <div class="col-md-12 col-12">
+                                                <div class="form-group">
+                                                    <label>Pengalaman Minimum<span class="required_field">*</span> : </label>
+                                                    <div class="controls">
+                                                        <input type="number" min="0" name="minimum_experience" class="form-control" autocomplete="off" value="{{ job_detail.minimum_work_experience }}"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                
+                                            <div class="col-md-6 col-12">
+                                                <div class="form-group">
+                                                    <label>Umur Minimal<span class="required_field">*</span> : </label>
+                                                    <div class="controls">
+                                                        <input type="number" min="0" name="min_age" class="form-control" autocomplete="off" value="{{ job_detail.minimum_age }}"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                
+                                            <div class="col-md-6 col-12">
+                                                <div class="form-group">
+                                                    <label>Umur Maximal<span class="required_field">*</span> : </label>
+                                                    <div class="controls">
+                                                        <input type="number" min="0" name="max_age" class="form-control" autocomplete="off" value="{{ job_detail.maximum_age }}" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                
+                                            <div class="col-md-6 col-12">
+                                                <div class="form-group">
+                                                    <label>Pendidikan Minimal<span class="required_field">*</span> : </label>
+                                                    <select class="form-control select2 w-p100" name="minim_edu" id="minim_edu">
+                                                        <option value="0">--- Pendidikan --- </option>
+                                                        {% for level in pendidikan %}
+                                                            <option value="{{ level.id }}" {% if level.id == job_detail.minimum_education.id %} selected {% endif %}>{{ level.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6 col-12">
+                                                <div class="form-group">
+                                                    <label>Pendidikan Maximal<span class="required_field">*</span> : </label>
+                                                    <select class="form-control select2 w-p100" name="max_edu" id="max_edu">
+                                                        <option value="0">--- Pendidikan --- </option>
+                                                        {% for level in pendidikan_max %}
+                                                            <option value="{{ level.id }}" {% if level.id == job_detail.maximum_education.id %} selected {% endif %}>{{ level.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-2 col-2">
+                                                <div class="form-group">
+                                                    <label>&nbsp; </label>
+                                                    <div class="controls">
+                                                        <button type="button" class="btn btn-info" id="add-major"> <i class="fa fa-plus"></i> Tambah Jurusan </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 col-12">
+                                                {% for data in job_detail.majors %}
+                                                <div class="form-group">
+                                                    <label>Jurusan<span class="required_field">*</span> : </label>
+                                                    {% if data.id > 1 %}
+                                                    <a class="float-right text-danger" data-toggle="tooltip" data-original-title="Delete" href="{% url 'job_delete_jurusan' id=job_id id_jurusan=data.id %}"><i class="ion-close"></i></a>
+                                                    {% endif %}
+                                                    <br>
+                                                    <select class="form-control select2 w-p100" name="major[]" id="major">
+                                                        <option value="0">--- Jurusan --- </option>
+                                                        <option value="Tidak Ada" {% if job_detail.major == "Tidak Ada" %} selected {% endif %}>Tidak Ada </option>
+                                                        {% for prodi in jurusan %}
+                                                            <option value="{{ prodi.name }}" {% if prodi.name == data.jurusan %} selected {% endif %}>{{ prodi.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                {% endfor %}
+                                                <div class="form-group" id="major-div">
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                
+                            <div class="col-lg-6 col-12">
+                                <div class="box">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">Keahlian dan Pendidikan</h3>
+                                    </div>
+                                    <div class="box-body">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label>Apa keahlian yang dibutuhkan untuk pekerjaan ini? :</label>
+                                                    <div class="controls">
+                                                        <input type="text" value="{{ job_detail.expertise }}" class="form-control" name="expertise" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box">
+                            <div class="box-body">
+                                <h3> Pertanyaan Untuk Kandidat </h3>
+                                <div class="row">
+                                    <div class="col-md-10 col-10">
+                                        <div class="form-group">
+                                            <label>Pertanyaan Untuk Kandidat<span class="required_field">*</span> : </label>
+                                            <div class="controls">
+                                                <select class="form-control select2 w-p100" id="question">
+                                                    <option value="0">--- Select Question ---</option>
+                                                    {% for question in questions %}
+                                                        <option value="{{ question.id }}">{{ question.text }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="col-md-2 col-2">
+                                        <div class="form-group">
+                                            <label>&nbsp; </label>
+                                            <div class="controls">
+                                                <button type="button" class="btn btn-yellow" id="add_question">
+                                                    <i class="fa fa-plus"></i> Add Question</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+        
+                                <div class="media-list media-list-hover media-list-divided" id="answer_list">
+                                    {% for question in question_list %}
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p><strong><span class="nomor">{{  forloop.counter }}.  </span>
+                                                    {{ question.question.text }}: </strong>
+                                                </p>
+                                                {% for answer in question.question.answeroption_set.all %}
+                                                    <p style="margin-left: 10px;"> {{ answer.answer }}</p>
+                                                {% endfor %}
+                                                <div class="media-block-actions">
+                                                    <nav class="nav nav-dot-separated no-gutters">&nbsp;</nav>
+                                                    <nav class="nav no-gutters gap-2 font-size-16 media-hover-show">
+                                                        <a class="nav-link text-danger" href="{% url 'delete_job_question' id=question.id %}" data-toggle="tooltip" title="" data-original-title="Delete">
+                                                            <i class="ion-close"></i></a>
+                                                    </nav>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-footer">
+                            <a href="{% url 'question_list' %}" class="btn btn-red">
+                                <i class="fa fa-chevron-left"></i>
+                                Back
+                            </a>
+
+                            <button type="submit" class="btn btn-info pull-right">
+                                <i class="fa fa-floppy-o"></i>
+                                Update
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.box-body -->
+</div>
+{% endblock %}

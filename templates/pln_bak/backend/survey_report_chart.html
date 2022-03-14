@@ -1,0 +1,103 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load  static %}
+
+{% block javascript %}
+    <script src="{% static '/assets/vendor_components/chart.js-master/pallete-random-chart.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/chart.js-master/Chart.min.js' %}"></script>
+    <script>
+        function showChart(id, arrlabel) {
+            let ctx = $("#chart_"+id);
+            var pieChart = new Chart(ctx, {
+                                type: 'pie',
+                                data: arrlabel,
+                                options: {
+                                    animation: {
+                                        duration: 3000
+                                    },
+                                    responsive: true,
+                                    legend: {
+                                        labels: {
+                                            fontFamily: "Poppins",
+                                            fontColor: "#878787"
+                                        }
+                                    },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(33,33,33,1)',
+                                        cornerRadius: 0,
+                                        footerFontFamily: "'Poppins'"
+                                    },
+                                    elements: {
+                                        arc: {
+                                            borderWidth: 0
+                                        }
+                                    }
+                                }
+                            });
+        }
+        function getSum(total, num) {
+            return total + num;
+        }
+        function myFunction(id, numbers) {
+            console.log($("#total_response_"+id))
+            $("#total_response_"+id).html(numbers.reduce(getSum));
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="box">
+        <div class="box-body">
+            <div class="col-md-12 col-lg-6">
+              <div class="box">
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <tr>
+                          <th style="width: 10px">#</th>
+                          <th>Question</th>
+                          <th>Total Response</th>
+                        </tr>
+                          {% for question in object_list %}
+                          <tr>
+                          <td>{{ forloop.counter }}</td>
+                          <td>{{ question.text }}<br/>
+                              {% for ans in question.get_answer_options.all %}
+                                <span>{{ ans.answer}} </span><a class="btn" href="{% url 'report_survey_invitation_detail' id=invitation.id %}?answer={{ans.id}}"><i class="fa fa-search"></i></a><br/>
+                              {% endfor %}
+                              <br/>
+                              <div class="chart">
+                                <canvas id="chart_{{ forloop.counter }}" height="200"></canvas>
+                              </div>
+                              <script>
+                                  let arrayData_{{ forloop.counter }} = [{% for opt in question.answeroption_set.all %}{{ opt.count_answers_response }},{% endfor %}];
+                                  let arrayLabel_{{ forloop.counter }} = {
+                                            labels: [
+                                                {% for ans in question.get_answer_options.all %}
+                                                    "{{ ans.answer|safe}}",
+                                                {% endfor %}
+                                            ],
+                                            datasets: [
+                                                {
+                                                    data: arrayData_{{ forloop.counter }},
+                                                    backgroundColor: palette('tol-dv', arrayData_{{ forloop.counter }}.length).map(function (hex) {
+                                                        return '#' + hex;
+                                                    })
+                                                }]
+                                        };
+                                  showChart('{{ forloop.counter }}', arrayLabel_{{ forloop.counter }})
+                            </script>
+                          </td>
+                          <td id="total_response_{{ forloop.counter }}"></td>
+                              <script>myFunction('{{ forloop.counter }}', arrayData_{{ forloop.counter }})</script>
+                        </tr>
+                          {% endfor %}
+                      </table>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+              </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

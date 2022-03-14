@@ -1,0 +1,171 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load  static %}
+
+
+{% block css %}
+<style>
+    @media screen and (max-width: 750px) {
+        .mob {
+            display: block;
+            width: 100%;
+        }
+      }
+</style>
+{% endblock %}
+    
+
+{% block javascript %}
+    <script src="{% static '/assets/vendor_components/jquery-ui/jquery-ui.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static '/assets/vendor_plugins/DataTables-1.10.15/media/js/jquery.dataTables.min.js' %}"></script>
+    <script>
+        $(function () {
+            let status = "{{ status_verifikasi.status }}"
+            if (status == "1") {
+                $('#permohonan-unit').prop('disabled', true)
+                $('#permohonan-unit').prop('hidden', true)
+            }
+
+            "use strict";
+
+            $('#memberList').DataTable({
+              'paging'      : true,
+              'pageLength'  : 100,
+              'lengthChange': true,
+              'searching'   : false,
+              'autoWidth'   : false,
+              'processing': true,
+              'serverSide': true,
+              'ajax': {
+                  url: "{% url 'permohonan_unit_list_ajax' %}",
+                  data : function(d){
+                      d.permohonanID = $('#permohonan_id').val();
+                  }
+              },
+              'ordering': false
+            });
+
+          }); // End of use strict
+    </script>
+{% endblock %}
+
+{% block content %}
+
+    {% if request.COOKIES.success_msg %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.success_msg }} </div>
+    {% endif %}
+
+    {% if request.COOKIES.error_msg %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{ request.COOKIES.error_msg }} </div>
+    {% endif %}
+
+    <div class="box">
+        <div class="box-body">
+            <div class="row">
+                <!-- LEFT COLUMN -->
+                <div class="col-md-6 col-12">
+                    <div class="form-group">
+                        <label>Status :</label>
+                        <div>
+                            {% if status_verifikasi.status == 0 %}
+                            <button class="btn btn-danger mob">
+                                Ditolak
+                            </button>
+                            {% elif status_verifikasi.status == 1 %}
+                            <button class="btn btn-success mob">
+                                Diterima
+                            </button>
+                            {% else %}
+                            <button class="btn btn-primary mob">
+                                Menunggu di Verifikasi
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label> Download Excel :</label>
+                        <div>
+                            {% if permohonan.file_unit_permohonan != None %}
+                            <a href="{% url 'download_data' files='excel' id=permohonan_id %}" class="btn btn-success mob">
+                                <i class="fa fa-file"></i>
+                                File Excel
+                            </a>
+                            {% else %}
+                            <a class="btn btn-danger mob" aria-disabled="true">
+                                <i class="fa fa-times"></i>
+                                File Belum Tersedia
+                            </a>
+                            {% endif %}
+                            {% if permohonan.update_file_unit_permohonan != None %}
+                            <a href="{% url 'download_data' files='update_excel' id=permohonan_id %}" class="btn btn-success mob">
+                                <i class="fa fa-file"></i>
+                                Update Unit File Excel
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <!-- RIGHT COLUMN -->
+                <div class="col-md-3 col-12">
+                </div>
+                <div class="col-md-3 col-12">
+                    <div class="form-group"  id="permohonan-unit">
+                        <label></label>
+                        <a href="{% url 'verifikasi_permohonan_unit' id=permohonan_id %}" class="btn btn-blue mob" style="float: right; width: 100%;">
+                            <i class="fa fa-plus-circle"></i>
+                            Verifikasi Permohonan Unit
+                        </a>
+                    </div>
+                    <div class="form-group">
+                        <label></label>
+                        <a href="{% url 'timeline_permohonan_unit' id=permohonan_id %}" class="btn btn-blue mob" style="float: right; width: 100%;">
+                            <i class="fa fa-plus-circle"></i>
+                            Timeline Permohonan Unit
+                        </a>
+                    </div>
+                    <div class="form-group">
+                        <label></label>
+                        <a href="{% url 'permohonan_unit_update' id=permohonan_id %}" class="btn btn-success mob" style="float: right; width: 100%;">
+                            <i class="fa fa-upload"></i>
+                            Update by Excel
+                        </a>
+                    </div>  
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="box b-3">
+                <div class="box-body">
+                    <input type="hidden" id="permohonan_id" name="permohonan_id" value="{{ permohonan_id }}" />
+                    <div class="table-responsive">
+                        <table id="memberList" class="table no-wrap" data-page-size="10">
+                            <thead>
+                            <tr class="bg-secondary">
+                                <th>Blok</th>
+                                <th>Daya</th>
+                                <th>Unit</th>
+                                <th>No. Bangunan</th>
+                                <th>Status Bangunan</th>
+                                <th>Persentase</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /. box -->
+        </div>
+        <!-- /.col -->
+    </div>
+{% endblock %}

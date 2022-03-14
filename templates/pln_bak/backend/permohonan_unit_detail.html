@@ -1,0 +1,211 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load static %}
+
+
+{% block javascript %}
+    <script>
+
+        
+        $(document).ready(function(){
+            let update = "{{ permohonan_unit.updated_date }}"
+            
+            if (update == "None") {
+                $("#update-box").prop("hidden", true)
+            } else {
+                $("#update-box").prop("hidden", false)
+                $("#update-btn").prop("hidden", true)
+                $("#update-btn").prop("disabled", true)
+                $("#save").prop("hidden", true)
+                $(".dis").prop("disabled", true)
+            }
+
+            $("#update-btn").click(function () {
+                $("#update-btn").prop("hidden", true)
+                $("#update-box").prop("hidden", false)
+            })
+
+            $("#edit-btn").click(function () {
+                $("#edit-btn").prop("hidden", true)
+                $(".dis").prop("disabled", false)
+                $("#save").prop("hidden", false)
+            })
+        })
+    </script>
+{% endblock %}
+    
+
+{% block content %}
+
+    {% if request.COOKIES.success_msg %}
+        <div class="alert alert-success alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ request.COOKIES.success_msg }} </div>
+    {% endif %}
+
+    {% if request.COOKIES.error_msg %}
+        <div class="alert alert-danger alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ request.COOKIES.error_msg }} </div>
+    {% endif %}
+
+    <div class="box">
+        <div class="box-header with-border">
+            <h3 class="box-title">Detail Permohonan Unit</h3>
+        </div>
+        <div class="box-body">
+            <div class="form-group form-row">
+                <div class="col-6">
+                    <label>Unit : </label>
+                    <div class="controls">
+                        <input type="text" autocomplete="off" name="nama" class="form-control" value="{{ permohonan_unit.unit }}" disabled/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label>Daya : </label>
+                    <div class="controls">
+                        <input type="text" autocomplete="off" name="nama" class="form-control" value="{{ permohonan_unit.daya }}" disabled/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group form-row">
+                <div class="col-6">
+                    <label>Blok : </label>
+                    <div class="controls">
+                        <input type="text" autocomplete="off" name="nama" class="form-control" value="{{ permohonan_unit.blok }}" disabled/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label>No. Bangunan : </label>
+                    <div class="controls">
+                        <input type="text" autocomplete="off" name="nama" class="form-control" value="{{ permohonan_unit.no_bangunan }}" disabled/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group form-row">
+                <div class="col-6">
+                    <label>Status Bangunan : </label>
+                    <div class="controls">
+                        <input type="text" autocomplete="off" name="nama" class="form-control" value="{{ permohonan_unit.status_bangunan }}" disabled/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label>Persentase : </label>
+                    <div class="controls">
+                        <input type="text" autocomplete="off" name="nama" class="form-control" value="{{ persentase }} %" disabled/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group form-row">
+                <div class="col-4">
+                    <label>Tanggal Mulai : </label>
+                    <div class="controls">
+                        <input type="text" autocomplete="off" name="nama" class="form-control" value="{{ permohonan_unit.tgl_mulai }}" disabled/>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <label>Tanggal Selesai : </label>
+                    <div class="controls">
+                        <input type="text" autocomplete="off" name="nama" class="form-control" value="{{ permohonan_unit.tgl_selesai }}" disabled/>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <label>Tanggal Serah Terima : </label>
+                    <div class="controls">
+                        <input type="text" autocomplete="off" name="nama" class="form-control" value="{{ permohonan_unit.tgl_serah_terima }}" disabled/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="box-footer with-border">
+            <button type="button" class="btn btn-primary text-white" id="update-btn">
+                Update Pengajuan Permohonan Detail Unit
+            </button>
+        </div>
+    </div>
+
+    <div class="box" id="update-box">
+        <form method="post">
+            {% csrf_token %}
+            <div class="box-header with-border">
+                <h3 class="box-title">Update Detail Permohonan Unit</h3>
+                <button type="button" class="btn btn-success" style="float: right;" id="edit-btn">
+                    <i class="fa fa-edit "></i> Edit
+                </button>
+            </div>
+            <div class="box-body">
+                <div class="form-group form-row">
+                    <div class="col-6">
+                        <label>Golongan Tarif : <span class="text-danger">*</span></label>
+                        <div class="controls">
+                            <input type="text" autocomplete="off" name="gol_tarif" class="form-control dis" value="{{ permohonan_unit.gol_tarif}}"/>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label>Biaya Penyambungan : <span class="text-danger">*</span></label>
+                        <div class="controls">
+                            <input type="number" step="0.01" autocomplete="off" name="biaya_penyambungan" class="form-control dis" value="{{ permohonan_unit.biaya_penyambungan}}"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group form-row">
+                    <div class="col-6">
+                        <label>Uang Jaminan : <span class="text-danger">*</span></label>
+                        <div class="controls">
+                            <input type="number" step="0.01" autocomplete="off" name="uang_jaminan" class="form-control dis" value="{{ permohonan_unit.uang_jaminan }}"/>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label>Token Perdana : <span class="text-danger">*</span></label>
+                        <div class="controls">
+                            <input type="number" step="0.01" autocomplete="off" name="token_perdana" class="form-control dis" value="{{ permohonan_unit.token_perdana }}"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group form-row">
+                    <div class="col-6">
+                        <label>Kesepakatan Pihak 1 : <span class="text-danger">*</span></label>
+                        <select class="js-select2 form-control dis" name="pihak_1" data-placeholder="">
+                            <option> == Kesepakatan == </option>
+                            <option value="1" {% if permohonan_unit.kesepakatan_pihak_1 == 1 %}selected{% endif %}>Disurvey</option>
+                            <option value="0" {% if permohonan_unit.kesepakatan_pihak_1 == 0 %}selected{% endif %}>Tidak Disurvey</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label>Kesepakatan Pihak 2 : <span class="text-danger">*</span></label>
+                        <select class="js-select2 form-control dis" name="pihak_2" data-placeholder="">
+                            <option> == Kesepakatan == </option>
+                            <option value="1" {% if permohonan_unit.kesepakatan_pihak_2 == 1 %}selected{% endif %}>Diproses</option>
+                            <option value="0" {% if permohonan_unit.kesepakatan_pihak_2 == 0 %}selected{% endif %}>Tidak Diproses</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group form-row">
+                    <div class="col-6">
+                        <label>No. Agenda Kolektif : <span class="text-danger">*</span></label>
+                        <div class="controls">
+                            <input type="text" autocomplete="off" name="agenda_kolektif" class="form-control dis" value="{{ permohonan_unit.no_agenda_kolektif }}"/>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label>No. Agenda Individu : <span class="text-danger">*</span></label>
+                        <div class="controls">
+                            <input type="text" autocomplete="off" name="agenda_individu" class="form-control dis" value="{{ permohonan_unit.no_agenda_individu }}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="box-footer">
+                <a href="{% url 'permohonan_unit_list' id=permohonan_unit.permohonan_id %}" class="btn btn-danger">
+                    <i class="fa fa-chevron-left "></i> Back
+                </a>
+                <div class="pull-right">
+                    <button type="submit" class="btn btn-primary" style="margin-bottom: 10px;" id="save">
+                        <i class="fa fa-save "></i> Save
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+{% endblock %}

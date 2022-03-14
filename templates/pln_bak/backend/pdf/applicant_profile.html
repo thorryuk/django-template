@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+{% load humanize %}
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<title>PPA - Safe & Strong Operational Performance</title>
+
+
+    <base href="https://frontend-ppa.h-seo.com/">   
+	<link rel="icon" href="https://ppa.co.id/wp-content/uploads/2017/09/logopapa.png" sizes="32x32" />
+	<link rel="icon" href="https://ppa.co.id/wp-content/uploads/2017/09/logopapa.png" sizes="192x192" />
+	<link rel="apple-touch-icon-precomposed" href="https://ppa.co.id/wp-content/uploads/2017/09/logopapa.png" />
+	<meta name="msapplication-TileImage" content="https://ppa.co.id/wp-content/uploads/2017/09/logopapa.png" />
+
+{% block css %}
+	<!-- Bootstrap CSS -->
+	<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	<link rel="stylesheet" href="{% static '/assets_fe/fontawesome/css/all.css' %}">
+	<link rel="stylesheet" href="{% static '/assets_fe/css/style.css' %}">
+{% endblock %}
+
+
+</head>
+<body>
+	<!-- Section Profile Start -->
+	<section class="section-profile">
+		<div class="container">
+            <div class="card-user my-5">
+                <h1>Curiculum Vitae</h1>
+                <div class="user-header my-5">
+                    <div class="row">
+                        <table>
+                            <td>
+                                <div class="col-md-3">
+                                    <figure>
+                                        <img src="{{ url_image }}{{ applicant.profile_pict_url }}" class="img-fluid" style="width: 200px; height: 200px; border-radius: 50%;">
+                                    </figure>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-9">
+                                    <div>
+                                        <h1>{{ applicant.user.first_name }} {{ applicant.user.last_name }}</h1>
+                                        <hr>
+                                        <p class="m-0">No Telepon : {{ applicant.phone_number }}</p>
+                                        <p class="m-0">Alamat Email : {{ applicant.user.email }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="user-biodata">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <h4 class="text-biodata">Biodata Diri</h4>
+                            <table>
+                                <tr>
+                                    <td>Tempat/tgl Lahir</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ applicant.place_of_birth }}, {{ applicant.date_of_birth }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Alamat</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ applicant.address }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Status Perkawinan</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ marital_status }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Tinggi & Berat Badan </td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ applicant.height }} Cm, {{ applicant.weight }} Kg</td>
+                                </tr>
+                                <tr>
+                                    <td>No. Jamsostek</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ applicant.no_jamsostek }}</td>
+                                </tr>
+                                <tr>
+                                    <td>No. BPJS</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ applicant.no_bpjs }}</td>
+                                </tr>
+                                <tr>
+                                    <td>No. NPWP</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ applicant.no_npwp }}</td>
+                                </tr>
+                                <tr>
+                                    <td>SIM</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    {% if applicant.type_sim == 'tidak_ada' %}
+                                        <td>Tidak Punya SIM</td>
+                                    {% else %}
+                                        <td>SIM {{ applicant.type_sim }}</td>
+                                    {% endif %}
+                                </tr>
+                                
+                                {% if applicant.type_sim != 'tidak_ada' %}
+                                <tr>
+                                    <td>No. SIM</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ applicant.no_sim }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Masa Berlaku</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ applicant.validity_period_sim }}</td>
+                                </tr>
+                                {% endif %}
+                                <!-- <tr>
+                                    <td>Uk. Baju </td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ applicant.size_clothes }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Uk. Sepatu </td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ applicant.size_shoes }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Uk. Celana </td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ applicant.size_pants }}</td>
+                                </tr> -->
+                            </table>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <h4 class="text-biodata">Pendidikan</h4>
+                            <table>
+                                <tr>
+                                    <td>Perguruan Tinggi</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ education.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Fakultas</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ education.faculty }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Program Studi</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ education.major }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Gelar </td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ education.degree }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Tahun Keluar </td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ education.year_out }}</td>
+                                </tr>
+                                <tr>
+                                    <td>IPK </td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ education.gpa }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <h4 class="text-biodata">Pekerjaan Terakhir</h4>
+                            <table>
+                                <tr>
+                                    <td>Nama Perusahaan </td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ experience.company_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Lama Bekerja </td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ experience.periode }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Posisi</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ experience.position }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <h4 class="text-biodata">Ekspetasi</h4>
+                            <table>
+                                <tr>
+                                    <td>Posisi yang anda Lamar </td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>{{ job_apply.applied_position }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Gaji yang anda harapkan</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>Rp {{ job_apply.expected_salary }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="col-md-12 mb-4">
+                            <h4 class="text-biodata">Status lamaran</h4>
+                            <table border="1" cellpadding="10" class="table table-bordered no-wrap" data-page-size="10">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal Proses</th>
+                                        <th>Jabatan yang dituju</th>
+                                        <th>Posisi yang dituju</th>
+                                        <th>Penempatan</th>
+                                        <th>Tahap/Proses Rekrutmen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#</td>
+                                        <td>{{ job_apply.job.job_level }}</td>
+                                        <td>{{ job_apply.job.position }}</td>
+                                        <td>{{ job_apply.job.site.name }}</td>
+                                        <td>
+                                            {% if job_apply.job.status == 0 %}
+                                                Waiting Approval
+                                            {% elif job_apply.job.status == 1 %}
+                                                Review by HR
+                                            {% elif job_apply.job.status == 2 %}
+                                                Interview (check your email)
+                                            {% else %}
+                                                Cancelled   
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</section>
+    
+{% block javascript %}
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+{% endblock %}
+</body>
+</html>

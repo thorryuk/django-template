@@ -1,0 +1,102 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load static %}
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static '/assets/vendor_components/select2/dist/css/select2.min.css' %}">
+{% endblock %}
+    
+
+{% block javascript %}
+<script src="{% static '/assets/vendor_components/select2/dist/js/select2.full.js' %}"></script>
+<script type="text/javascript">
+    $(function () {
+        "use strict";
+
+        $('.select2').select2();
+    });
+</script>
+{% endblock %}
+    
+
+{% block content %}
+
+    {% if request.COOKIES.success_msg %}
+        <div class="alert alert-success alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ request.COOKIES.success_msg }} </div>
+    {% endif %}
+
+    {% if request.COOKIES.error_msg %}
+        <div class="alert alert-danger alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ request.COOKIES.error_msg }} </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        <div class="box">
+
+            {% csrf_token %}
+            <div class="box-header with-border">
+                <h3 class="box-title">Unit Attributes</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="form-group">
+                    <label>Name<span class="required_field">*</span> : </label>
+                    <input class="form-control" type="text" name="name" id="name" value="{{ group.name }}">
+                </div>
+                <div class="form-group">
+                    <label>Role<span class="required_field">*</span> : </label>
+                    <input type="text" class="form-control" name="user" id="user" value="{{ group.role_group.description }}" disabled>
+                </div>
+                
+                {% if group.role_group.name == 'uid' %}    
+                <div class="form-group" id="div-provinsi">
+                    <label>Provinsi<span class="required_field">*</span> : </label>
+                    <select class="form-control select2 w-p100" name="provinsi" id="provinsi" required>
+                        <option value="">--- Provinsi --- </option>
+                        {% for prov in provinsi %}
+                            <option value="{{ prov.id }}" {% if prov.id == group.provinsi.id %} selected {% endif %} >{{ prov.nama }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% elif group.role_group.name == 'up3' %}
+                <div class="form-group" id="div-kabupaten">
+                    <label>Kabupaten / Kota<span class="required_field">*</span> : </label>
+                    <select class="form-control select2 w-p100" name="kabupaten" id="kabupaten" required>
+                        <option value="">--- Kabupaten / Kota --- </option>
+                        {% for kab in kabupaten %}
+                            <option value="{{ kab.id }}" {% if kab.id == group.kota_kabupaten.id %} selected {% endif %}>{{ kab.nama }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% else %}
+                <div class="form-group" id="div-kecamatan">
+                    <label>kecamatan<span class="required_field">*</span> : </label>
+                    <select class="form-control select2 w-p100" name="kecamatan" id="kecamatan" required>
+                        <option value="">--- kecamatan --- </option>
+                        {% for kec in kecamatan %}
+                            <option value="{{ kec.id }}" {% if kec.id == group.kecamatan.id %} selected {% endif %}>{{ kec.nama }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                    
+            </div>
+            <div class="box-footer">
+                <a href="{% url 'group_list' %}" class="btn btn-red">
+                    <i class="fa fa-ban"></i>
+                    Cancel
+                </a>
+
+                <button type="submit" class="btn btn-info pull-right">
+                    <i class="fa fa-floppy-o"></i>
+                    Update
+                </button>
+            </div>
+        </div>
+    </form>
+
+
+{% endblock %}

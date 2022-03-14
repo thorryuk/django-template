@@ -1,0 +1,18 @@
+{% extends '../error/base.html' %}
+{% load  static %}
+
+{% block content %}
+    <div class="col-lg-8 col-12">
+        <div class="p-35 text-white" data-overlay="8">
+            <h1>Terjadi Kesalahan</h1>
+                <div class="error-page">
+                    <h2 class="headline font-weight-900 text-warning"><em>404</em></h2>
+                </div>
+                <p class="para-wthree">{{ message }}</p>
+            </div>
+
+        <footer class="main-footer bg-transparent text-white ml-0 text-center no-border">
+            Copyright © 2018 <a href="{{backend_url}}" class="text-info hover-danger">Perusahaan Listrik Negara</a>. All Rights Reserved.
+        </footer>
+    </div>
+{% endblock %}

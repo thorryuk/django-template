@@ -1,0 +1,4 @@
+FROM nginx:1.11.5-alpine
+
+RUN apk --no-cache add openssl
+COPY docker/nginx/default_setting.conf /etc/nginx/conf.d/

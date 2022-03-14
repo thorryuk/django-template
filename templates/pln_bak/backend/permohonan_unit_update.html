@@ -1,0 +1,49 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load static %}
+
+
+{% block content %}
+
+    {% if request.COOKIES.success_msg %}
+        <div class="alert alert-success alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ request.COOKIES.success_msg }} </div>
+    {% endif %}
+
+    {% if request.COOKIES.error_msg %}
+        <div class="alert alert-danger alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ request.COOKIES.error_msg }} </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        <div class="box">
+            {% csrf_token %}
+            <div class="box-header with-border">
+                <h3 class="box-title">Update Unit by Excel</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="form-group">
+                    <label>Detail Unit<span class="required_field">*</span> : </label>
+                    <div class="controls">
+                        <input type="file" name="update_detail_unit" class="form-control" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required/>
+                    </div>
+                </div>
+            </div>
+            <div class="box-footer">
+                <a href="{% url 'permohonan_unit_list' id=id %}" class="btn btn-red">
+                    <i class="fa fa-ban"></i>
+                    Cancel
+                </a>
+
+                <button type="submit" class="btn btn-info pull-right">
+                    <i class="fa fa-floppy-o"></i>
+                    Update
+                </button>
+            </div>
+        </div>
+    </form>
+
+
+{% endblock %}

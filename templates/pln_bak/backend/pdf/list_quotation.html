@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+{% load humanize %}
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+            font-family: "Times New Roman", Times, serif;
+        }
+        #wrapper{
+            width: 100%;
+            height: 100%;
+        }
+        #header{
+            width: 100%;
+            height: 150px;
+            margin-top: 20px;
+            margin-left: 20px;
+        }
+        #header_kop_surat{
+            margin: auto;
+            width: 100%;
+            height: 100px;
+            border-bottom: 1px double #0c0c0c;
+        }
+        #kop_surat{
+            margin: 0;
+            padding: 0;
+        }
+        #kop_surat h1 {
+            font-size: 24px;
+        }
+        #kop_surat h3 {
+            font-size: 14px;
+            margin: 5px 0 5px 0;
+        }
+        #kop_surat li{
+            display: inline;
+            float: left;
+            margin: 5px 10px 5px 10px;
+        }
+        #kop_surat img{
+            width: 80px;
+        }
+        .title_center {
+            margin: 5px 200px 0px 200px !important;
+        }
+        /* ----------------------------------------- */
+        #header_ref{
+            width: 80%;
+            margin-top: 10px;
+            height: 60px;
+        }
+
+        #title_left {
+            float: left;
+            font-size: 18px;
+            margin-top: 15px;
+        }
+
+        #table_right {
+            float: right;
+        }
+
+        #table_right table {
+            border-collapse: collapse;
+            width: 250px;
+        }
+
+        #table_right table, th, td{
+            border: 1px solid #0c0c0c;
+            padding: 2px;
+        }
+
+        #table_right th {
+            background: yellow;
+        }
+        /* ----------------------------------------- */
+        #header_address {
+            width: 80%;
+            margin-top: 10px;
+            height: 120px;
+        }
+        #table_address {
+            border: 1px solid #0c0c0c;
+            width: 100%;
+        }
+
+        #table_address td {
+            border: none;
+        }
+        /*------------------------------------------- */
+        #body_content {
+            width: 100%;
+            margin-left: 20px;
+            margin-top: 20px;
+        }
+
+        .table_content {
+            border-collapse: collapse;
+            margin-top: 10px;
+            width: 80%;
+            text-align: center;
+        }
+
+        .table_content th, td{
+            border: 1px solid #0c0c0c;
+            padding: 10px;
+        }
+
+        .table_content th {
+            background: yellow;
+        }
+        /*--------------------------------------------*/
+        #footer{
+            width: 100%;
+            margin-left: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .table_footer {
+            border-collapse: collapse;
+            margin-top: 10px;
+            width: 60%;
+            text-align: center;
+        }
+        .table_footer th, td{
+            border: 1px solid #0c0c0c;
+        }
+        .td_big {
+            width: 200px;
+            height: 150px;
+        }
+    </style>
+</head>
+<body>
+<div id="wrapper">
+    <div id="header">
+        <div id="header_kop_surat">
+            <ul id="kop_surat" style="margin-left: 100px;">
+                <li>
+                    <img src="{{ base_dir }}/static/images/nippon-express-logo-red.png">
+                </li>
+                <li class="title_center">
+                    <p>
+                        <h1>PT. NIPPON EXPRESS INDONESIA</h1>
+                        <h3>Soewarna Business Park Block J-12</h3>
+                        <h3>Bandara International Soekarno Hatta, Jakarta 19110, Indonesia</h3>
+                        <h3>Tel : +62-21-55911551  Fax : +62-21-55911533</h3>
+                    </p>
+                </li>
+                <li>
+                    <img src="{{ base_dir }}/static/images/iata.png">
+                </li>
+            </ul>
+        </div>
+        <div id="header_ref">
+            <div id="title_left">
+                QUOTATION LIST
+            </div>
+        </div>
+    </div>
+    <div id="body_content">
+
+        <table class="table_content">
+            <thead>
+            <tr class="bg-secondary">
+                <th style="width: 20px;">No.</th>
+                <th style="width: 120px">Ref. No</th>
+                <th style="width: 120px">Type</th>
+                <th style="width: 280px">Customer Name</th>
+                <th style="width: 120px">Created Date</th>
+                <th style="width: 120px">Approval Expired Date</th>
+                <th style="width: 120px">Expired Date</th>
+                <th style="width: 150px">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for quotation in quotation_list %}
+                    <tr>
+                    <td>{{ forloop.counter  }}</td>
+                    <td>{{ quotation.quotation_number }}</td>
+                    <td>{{ quotation.get_type_display }}</td>
+                    <td style="text-align: left !important;">{{ quotation.customer.name }}</td>
+                    <td>{{ quotation.prepare_date }}</td>
+                    <td>{{ quotation.approve_date }}</td>
+                    <td>{{ quotation.quotation_due_date }}</td>
+                    <td>{{ quotation.get_quotation_status_display }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

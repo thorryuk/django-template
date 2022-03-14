@@ -1,0 +1,407 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static '/assets/vendor_components/select2/dist/css/select2.min.css' %}">
+{% endblock %}
+
+{% block javascript %}
+    <script src="{% static '/assets/vendor_components/select2/dist/js/select2.full.js' %}"></script>
+    <script src="{% static '/assets/vendor_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+    <script type="text/javascript">
+        $(function () {
+            "use strict";
+            $('.select2').select2();
+            //Date picker
+            $('#interview_date').datepicker({
+                autoclose: true,
+                format: 'dd/mm/yyyy',
+                disableTouchKeyboard: true
+            });
+        });
+
+        $(document).ready(function () {
+            $('#add_recipient').click(function () {
+                var user_selected = $('#recipient option:selected');
+                if(user_selected.val().trim() == '0'){
+                    alert('Please select user');
+                }else{
+
+                    var check_user_id = $("input").filter(function() {
+                        return $(this).val() == user_selected.val();
+                    }).closest("tr");
+
+                    if(check_user_id.length == 0){
+                        $('#default_row_recipient').remove();
+                        var new_row = '<tr>';
+                        new_row += '<td>' + user_selected.text() + '<input type="hidden" name="user_id[]" value="'+user_selected.val()+'"></td>';
+                        new_row += '<td></td>';
+                        new_row += '<td><button type="button" class="btn btn-red"><i class="fa fa-trash"></i></button></td>';
+                        new_row += '</tr>';
+                        $('#table_list_user tbody').append(new_row);
+                        $('#recipient').val('0').trigger('change.select2');
+                    }else{
+                        alert('the user was already in the list');
+                    }
+                }
+            });
+
+            $('#table_list_user').on('click', 'button', function(){
+                $(this).closest('tr').remove();
+                var rowCount = $('#table_list_user tr').length;
+                if(rowCount == 1){
+                    $('#table_list_user tbody').append('<tr id="default_row_recipient"><td colspan="3">No Data</td></tr>');
+                }
+            });
+
+            $('#job').change(function () {
+                var val_job = $(this).val();
+                $.ajax({
+                    url: backend_base_url + "api/user_by_job?job_id=" + val_job,
+                    dataType: "json",
+                    beforeSend: function(){
+                        $("#recipient").empty();
+                    }
+                }).done(function( data ) {
+                    var total_data = data.length;
+                    if(total_data > 0 ){
+                        $('#recipient').append('<option value="0">--- Select Recipient ---</option>');
+                        $.map( data, function( item ) {
+                            $('#recipient').append('<option value="'+item.user_id+'">' + item.user__first_name + ' ' + item.user__last_name + ' [' + item.user__email + ']' + '</option>');
+                        });
+                    }else{
+                        $('#recipient').append('<option> User Not Found </option>');
+                    }
+                    $("#recipient").trigger("chosen:updated");
+                    $("#recipient").trigger("liszt:updated");
+                });
+            });
+        });
+
+        $(document).ready(function () {
+          let online = $('#online_radio')
+          let onsite = $('#onsite_radio')
+
+          let online_check = online.is(':checked');
+          let onsite_check = onsite.is(':checked');
+
+          let online_disabled = online.is(':disabled')
+          let onsite_disabled = onsite.is(':disabled')
+
+          if (online_check == true) {
+            $('#onsite_div').attr("hidden", true);
+            $('#address').attr("disabled", true);
+            $('#online_div').attr("hidden", false);
+            $('#link').attr("disabled", false);
+          }
+          if (onsite_check == true) {
+            $('#onsite_div').attr("hidden", false);
+            $('#address').attr("disabled", false);
+            $('#online_div').attr("hidden", true);
+            $('#link').attr("disabled", true);
+          }
+          if (online_disabled == true || onsite_disabled == true) {
+            $('#address').attr("disabled", true);
+            $('#link').attr("disabled", true);
+          }
+        });
+      
+        function check() {
+          if ($('#online_radio').is(':checked')){
+            $('#onsite_div').attr("hidden", true);
+            $('#address').attr("disabled", true);
+            $('#address').attr("value", "");
+            $('#online_div').attr("hidden", false);
+            $('#link').attr("disabled", false);
+          } 
+          if ($('#onsite_radio').is(':checked')) {
+            $('#online_div').attr("hidden", true);
+            $('#link').attr("disabled", true);
+            $('#link').attr("value", "");
+            $('#onsite_div').attr("hidden", false);
+            $('#address').attr("disabled", false);
+          }
+        }
+    </script>
+
+{% endblock %}
+
+
+{% block content %}
+
+    {% if request.COOKIES.success_msg %}
+        <div class="alert alert-success alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ request.COOKIES.success_msg }} </div>
+    {% endif %}
+
+    {% if request.COOKIES.error_msg %}
+        <div class="alert alert-danger alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ request.COOKIES.error_msg }} </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        <div class="box">
+
+            {% csrf_token %}
+            <div class="box-header with-border">
+                <h3 class="box-title">Interview Invitation Attributes</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-8 col-4">
+                        <div class="form-group">
+                            <label>Interview Invitation Name<span class="required_field">*</span> : </label>
+                            <div class="controls">
+                                <input type="text" name="name" id="name" class="form-control" autocomplete="off" value="{{ interview_invitation.name }}" 
+                                {% if interview_invitation.has_been_sent == True %}
+                                    disabled
+                                {% endif %}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-4">
+                        <div class="form-group">
+                            <label>File Attachment : </label>
+                            <div class="controls">
+                                <input type="file" name="files" id="files" class="form-control" accept="application/pdf" value="{{ path }}{{ interview_invitation.interview_files }}" 
+                                {% if interview_invitation.has_been_sent == True %}
+                                    disabled
+                                {% endif %}
+                                />
+                            </div>
+                            {% if interview_invitation.interview_files != '' %}
+                            <div class="form-group">
+                                <div class="controls">
+                                    <input type="text" class="form-control" value="{{ interview_invitation.interview_files }}" disabled/>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8 col-4">
+                        <div class="form-group">
+                            <label>Job Title<span class="required_field">*</span> : </label>
+                            <select class="form-control select2 w-p100" name="job" id="job"
+                                {% if interview_invitation.has_been_sent == True %}
+                                    disabled
+                                {% endif %}
+                            >
+                                <option value="0">--- Select Job --- </option>
+                                {% for job in jobs %}
+                                    <option value="{{ job.id }}" {% if job.id == interview_invitation.job_id %} selected {% endif %}>
+                                        {{ job.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-4">
+                        <div class="form-group">
+                            <label>Interview Date<span class="required_field">*</span>: </label>
+                            <div class="controls">
+                                <input type="text" value="{{ interview_invitation.interview_date|date:'d/m/Y' }}" name="interview_date" id="interview_date" 
+                                {% if interview_invitation.has_been_sent == True %}
+                                    disabled
+                                {% endif %}
+                                class="form-control" data-inputmask="'alias': 'dd/mm/yyyy'" data-mask/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-4">
+                        <div class="form-group">
+                            <label>Time<span class="required_field">*</span> : </label>
+                            <div class="controls">
+                                <input type="text" name="interview_time" id="interview_time" autocomplete="off" 
+                                {% if interview_invitation.has_been_sent == True %}
+                                    disabled
+                                {% endif %}
+                                value="{{ interview_invitation.interview_time }}" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8 col-8">
+                        <div class="form-group">
+                            <label>Interview Recipient<span class="required_field">*</span> : </label>
+                            <div class="controls">
+                                <select class="form-control select2 w-p100" id="recipient"
+                                {% if interview_invitation.has_been_sent == True %}
+                                    disabled
+                                {% endif %}
+                                >
+                                    <option value="0">--- Select Recipient ---</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 col-2">
+                        <div class="form-group">
+                            <label>Interviewer<span class="required_field">*</span> : </label>
+                            <div class="controls">
+                                <input type="text" name="interviewer" id="interviewer" autocomplete="off" class="form-control"
+                                {% if interview_invitation.has_been_sent == True %}
+                                    disabled
+                                {% endif %}
+                                value="{{ interview_invitation.interviewer }}"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if interview_invitation.has_been_sent == False %}
+                        <div class="col-md-2 col-2">
+                            <div class="form-group">
+                                <label>&nbsp; </label>
+                                <div class="controls">
+                                    <button type="button" class="btn btn-success" id="add_recipient">
+                                        <i class="fa fa-group"></i> Add Recipient</button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                </div>
+                <div class="row">
+                    <div class="col-2">
+                        <div class="form-group">
+                            <label>Interview Type<span class="required_field">*</span> : </label>
+                            <div class="controls">
+                                <input type="radio" id="online_radio" name="sim" class="form-control" {% if interview_invitation.has_been_sent == True %} disabled {% endif %} {% if interview_invitation.link != '' %} checked {% endif %} onchange="check();" />
+                                <label for="online_radio">Online</label>
+                                <br>
+                                <input type="radio" id="onsite_radio" name="sim" class="form-control" {% if interview_invitation.has_been_sent == True %} disabled {% endif %} {% if interview_invitation.address != '' %} checked {% endif %} onchange="check();"/>
+                                <label for="onsite_radio">On Site</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group" id="online_div">
+                            <label>Online Meeting URL<span class="required_field">*</span> : </label>
+                            <div class="controls">
+                                <!-- <input type="text" name="link" class="form-control" autocomplete="off"/> -->
+                                <textarea name="link" id="link" style="width: 100%;" required>{{ interview_invitation.link }}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group" id="onsite_div">
+                            <label>Address<span class="required_field">*</span> : </label>
+                            <div class="controls">
+                                <!-- <input type="text" name="link" class="form-control" autocomplete="off"/> -->
+                                <textarea name="address" id="address" style="width: 100%;" required>{{ interview_invitation.address }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="row">
+                    <div class="col-md-6 col-6">
+                        <div class="form-group">
+                            <label>Online Meeting URL : </label>
+                            <div class="controls">
+                                <input type="text" name="link" class="form-control" autocomplete="off"
+                                {% if interview_invitation.has_been_sent == True %}
+                                disabled
+                                {% endif %}
+                                value="{{ interview_invitation.link }}"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Address : </label>
+                            <div class="controls">
+                                <input type="text" name="address" class="form-control" autocomplete="off"
+                                {% if interview_invitation.has_been_sent == True %}
+                                disabled
+                                {% endif %}
+                                value="{{ interview_invitation.address }}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                    <!-- {% if user.roleuser.role_group.name == 'administrator' %}
+                    <div class="col-md-4 col-4">
+                        <div class="form-group">
+                            <label>Sites<span class="required_field">*</span> : </label>
+                            <select class="form-control select2 w-p100" name="sites" id="sites">
+                                <option value="0">--- Sites --- </option>
+                                {% for site in sites %}
+                                    <option value="{{ site.id }}" {% if site.id == interview_invitation.site_id %} selected {% endif %}>{{ site.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {% endif %} -->
+
+                <div class="table-responsive">
+                      <table class="table table-bordered" id="table_list_user">
+                        <thead><tr>
+                          <th>Interview Name</th>
+                          <th>Email</th>
+                          <th style="width: 40px">Action</th>
+                        </tr></thead>
+                          <tbody>
+                        {% for recipient in interview_invitation.interviewinvitationdetail_set.all %}
+                            <tr>
+                                <td>
+                                    {{ recipient.user.first_name }} {{ recipient.user.last_name }}
+                                    [Email: {{ recipient.user.email }}]
+                                    <input type="hidden" name="user_id_exists[]" value="{{ recipient.user_id }}">
+                                </td>
+                                <td>
+                                    {{ recipient.user.email }}
+                                    <input type="hidden" name="user_id_exists[]" value="{{ recipient.user_id }}">
+                                </td>
+                                <td>
+                                    {% if interview_invitation.has_been_sent == False %}
+                                        <a class="btn btn-red" href="{% url 'delete_interview_invitation_detail' id=interview_invitation.id detail_id=recipient.id %}"
+                                        onclick="return confirm('Are you sure to delete this recipient?'); ">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    {% else %}
+                                        &nbsp;
+                                    {% endif %}
+                                </td>
+                            </tr>
+                          {% endfor %}
+                          </tbody></table>
+                    </div>
+
+            </div>
+            <div class="box-footer">
+
+                <a href="{% url 'interview_invitation_list' %}" class="btn btn-red">
+                    <i class="fa fa-envelope-o"></i>
+                    Cancel
+                </a>
+
+                <div class="pull-right">
+                    {% if interview_invitation.has_been_sent == False %}
+                        <a class="btn btn-primary" href="{% url 'send_interview_invitation' id=interview_invitation.id %}">
+                            <i class="fa fa-paper-plane-o"></i>
+                            Send
+                        </a>
+                        &nbsp;
+                        <button type="submit" class="btn btn-secondary" name="send-update" value="1">
+                            <i class="fa fa-paper-plane-o"></i>
+                            Update & Send
+                        </button>
+                        &nbsp;
+                        <button type="submit" class="btn btn-info pull-right">
+                            <i class="fa fa-floppy-o"></i>
+                            Update
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+{% endblock %}

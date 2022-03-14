@@ -1,0 +1,103 @@
+{% extends 'pln/backend/layout/base_layout.html' %}
+{% load  static %}
+
+{% block javascript %}
+<script src="{% static '/assets/vendor_components/jquery-ui/jquery-ui.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/assets/vendor_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script src="{% static '/assets/vendor_plugins/DataTables-1.10.15/media/js/jquery.dataTables.min.js' %}"></script>
+<script>
+    $(function () {
+        "use strict";
+
+        $('#surveyList').DataTable({
+            'paging'      : true,
+            'lengthChange': false,
+            'searching'   : false,
+            'autoWidth'   : false,
+            'processing': true,
+            'serverSide': true,
+            'ajax': "{% url 'survey_list_ajax' %}",
+            'ordering': false
+        });
+
+    }); // End of use strict
+</script>
+{% endblock %}
+
+{% block content %}
+
+{% if request.COOKIES.success_msg %}
+<div class="alert alert-success alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+    {{ request.COOKIES.success_msg }} </div>
+{% endif %}
+
+{% if request.COOKIES.error_msg %}
+<div class="alert alert-danger alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+    {{ request.COOKIES.error_msg }} </div>
+{% endif %}
+
+<div class="box box-default">
+    <!-- /.box-header -->
+    <div class="box-body">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'question_list' %}" role="tab" aria-selected="true">
+                    <span class="hidden-sm-up">
+                                <i class="ion-home"></i>
+                            </span>
+                    <span class="hidden-xs-down">Question</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active show"href="{% url 'survey_list' %}" role="tab" aria-selected="false">
+                            <span class="hidden-sm-up">
+                                <i class="ion-person"></i>
+                            </span>
+                    <span class="hidden-xs-down">Survey</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content tabcontent-border">
+            <div class="tab-pane active show" id="question_list" role="tabpanel">
+                <div class="pad">
+                    <h3>Survey List</h3>
+                    <div class="row" style="margin-bottom: 10px;">
+                        <div class="col-md-6 col-12 ">
+                            <a href="{% url 'add_survey' %}" class=" btn btn-blue">
+                                <i class="fa fa-clone"></i>
+                                Add New Survey
+                            </a>
+                        </div>
+
+                        <div class="col-md-12 col-12" style="margin-top: 10px;">
+
+                            <div class="table-responsive">
+                                <table id="surveyList" class="table no-wrap" data-page-size="10">
+                                    <thead>
+                                    <tr class="bg-secondary">
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+
+                            <!-- /. box -->
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.box-body -->
+</div>
+{% endblock %}
