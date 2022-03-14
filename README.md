@@ -1,4 +1,4 @@
-# PLN | E-Request System
+# DJANGO TEMPLATE
 
 ## Installation :
 * Run code below :
