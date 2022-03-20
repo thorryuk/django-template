@@ -81,11 +81,11 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'db_pln',
-        'USER': 'pln',
-        'PASSWORD': 'coba2128',
+        'NAME': 'db_absensi',
+        'USER': 'absensi',
+        'PASSWORD': 'absensi97',
         'HOST': 'localhost',
-        'PORT': '5431',
+        'PORT': '5432',
         'CONN_MAX_AGE': 300
     }
 }
@@ -117,11 +117,11 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
-USE_I18N = True
+# USE_I18N = True
 
-USE_L10N = True
+# USE_L10N = True
 
-USE_TZ = True
+# USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -132,36 +132,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_PROFILE_PICT = ''
 DEFAULT_PATH_PROFILE_PICT = '/static/profile_pictures/'
-# DEFAULT_PATH_MAIL_ATTACHMENT = '/static/mail_attachments/'
 
 CELERY_BROKER_URL = 'amqp://rabbitmq:qnJzJ46d1RypmwYq@172.20.0.2:5672//'
 CELERY_DEFAULT_QUEUE = 'celery'
 
-# QUOTATION_STATUS_LIST = {'wait_app': 'Waiting Approval',
-#                          'approved_full': 'Approved Without Rev',
-#                          'approved_rev': 'Approved With Revision',
-#                          'wait_rev': 'Waiting Revision',
-#                          'draft': 'Draft'}
-
 BACKEND_HOST_PROTOCOL = 'http'
-# FRONT_END_URL = 'http://frontend.nippon-express.com:8111/'
+
 DEFAULT_MAIL_FROM = 'no-reply@pln.co.id'
 
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django.db.backends': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-        }
-    },
-}
-
-TEMPLATE_ID_AIR_FREIGHT_IMPORT = 3
+GLOBAL_TITLE = 'DJANGO TEMPLATE'

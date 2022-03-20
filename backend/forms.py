@@ -94,17 +94,17 @@ class AddUserForm(forms.Form):
         required=True,
     )
 
-    phone = CharField(
-        error_messages={'required': 'Please fill Phone Number column'},
-        widget=TextInput(attrs={'id': 'phone', 'class': '', 'placeholder': ""}),
-        required=True,
-    )
+    # phone = CharField(
+    #     error_messages={'required': 'Please fill Phone Number column'},
+    #     widget=TextInput(attrs={'id': 'phone', 'class': '', 'placeholder': ""}),
+    #     required=True,
+    # )
 
-    email_signature = CharField(
-        error_messages={'required': 'Please fill Email Signature column'},
-        widget=Textarea(attrs={'id': 'email_signature', 'class': '', 'placeholder': ""}),
-        required=True,
-    )
+    # email_signature = CharField(
+    #     error_messages={'required': 'Please fill Email Signature column'},
+    #     widget=Textarea(attrs={'id': 'email_signature', 'class': '', 'placeholder': ""}),
+    #     required=True,
+    # )
 
     roles = ChoiceFieldNoValidation(
         widget=Select(attrs={'class': 'choice__chosen', 'id': 'name'}),
@@ -112,7 +112,7 @@ class AddUserForm(forms.Form):
         required=True
     )
 
-    profile_pict = FileField(required=False)
+    images = FileField(required=False)
 
 
 class EditUserForm(forms.Form):
@@ -131,12 +131,6 @@ class EditUserForm(forms.Form):
         required=True,
     )
 
-    email = EmailField(
-        error_messages={'required': 'Please fill Email column'},
-        widget=TextInput(attrs={'id': 'email', 'class': '', 'placeholder': ""}),
-        required=True,
-    )
-
     gender = ChoiceField(
         widget=Select(),
         choices=GENDER_CHOICES,
@@ -149,23 +143,25 @@ class EditUserForm(forms.Form):
         required=True,
     )
 
-    phone = CharField(
-        error_messages={'required': 'Please fill Phone Number column'},
-        widget=TextInput(attrs={'id': 'phone', 'class': '', 'placeholder': ""}),
-        required=True,
-    )
+    # phone = CharField(
+    #     error_messages={'required': 'Please fill Phone Number column'},
+    #     widget=TextInput(attrs={'id': 'phone', 'class': '', 'placeholder': ""}),
+    #     required=True,
+    # )
 
-    email_signature = CharField(
-        error_messages={'required': 'Please fill Email Signature column'},
-        widget=Textarea(attrs={'id': 'email_signature', 'class': '', 'placeholder': ""}),
-        required=True,
-    )
+    # email_signature = CharField(
+    #     error_messages={'required': 'Please fill Email Signature column'},
+    #     widget=Textarea(attrs={'id': 'email_signature', 'class': '', 'placeholder': ""}),
+    #     required=True,
+    # )
 
-    role = ChoiceField(
+    roles = ChoiceField(
         widget=Select(),
         choices=RoleGroup.objects.values_list('id', 'name').filter().order_by('id'),
         required=True
     )
+
+    images = FileField(required=False)
 
 
 class NewRoleForm(forms.Form):

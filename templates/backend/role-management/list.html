@@ -1,0 +1,100 @@
+{% extends 'backend/layout/base-layout.html' %}
+
+{% load static %}
+
+
+{% block css %}
+<!-- Page JS Plugins CSS -->
+<link rel="stylesheet" href="{% static 'assets-cms/js/plugins/datatables-bs5/css/dataTables.bootstrap5.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets-cms/js/plugins/datatables-buttons-bs5/css/buttons.bootstrap5.min.css' %}">
+{% endblock %}
+
+
+{% block javascript %}
+<script src="{% static 'assets-cms/js/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets-cms/js/plugins/datatables-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script type="text/javascript">
+$(function () {
+  "use strict";
+  
+  // list role
+  $('#role_list').DataTable({
+    'paging'      : true,
+    'lengthChange': false,
+    'searching'   : false,
+    'autoWidth'   : false,
+    'processing': true,
+    'serverSide': true,
+    'ajax': "{% url 'role_list_ajax' %}",
+    'ordering': false,
+    'columnDefs': [
+      {
+        targets: -1,
+        className: 'text-center'
+      },
+      {
+        targets: 0,
+        className: 'text-center'
+      },
+    ]
+  });
+
+}); // End of use strict
+
+</script>
+{% endblock %}
+
+
+{% block content %}  
+
+<!-- Hero -->
+<div class="bg-body-light">
+  <div class="content content-full">
+    <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+      <h1 class="flex-grow-1 fs-3 fw-semibold my-2 my-sm-3">{{ sub_title }}</h1>
+      <nav class="flex-shrink-0 my-2 my-sm-0 ms-sm-3" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">Administrator</li>
+          <li class="breadcrumb-item active" aria-current="page">Role Management</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</div>
+<!-- END Hero -->
+
+<!-- Page Content -->
+<div class="content">
+  <!-- Dynamic Table Full -->
+  <div class="block block-rounded">
+    <div class="block-header block-header-default">
+      <h3 class="block-title">List Role</h3>
+      <div class="block-options">
+        <a href="{% url 'add_role' %}" class="btn btn-primary btn-sm me-1">
+          <i class="fa fa-fw fa-plus me-1"></i> Add Role
+        </a>
+      </div>
+    </div>
+    <div class="block-content block-content-full">
+      <!-- DataTables init on table by adding .js-dataTable-full class, functionality is initialized in js/pages/be_tables_datatables.min.js which was auto compiled from _js/pages/be_tables_datatables.js -->
+      <div class="table-responsive">
+        <table id="role_list" class="table table-bordered table-striped table-vcenter js-dataTable-full">
+          <thead>
+            <tr>
+              <th class="text-center" style="width: 30px;">#</th>
+              <th>Name</th>
+              <th style="width: 30%;">Description</th>
+              <th class="text-center" style="width: 100px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!-- END Dynamic Table Full -->
+
+</div>
+<!-- END Page Content -->
+
+{% endblock content %}

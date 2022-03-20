@@ -1,8 +1,10 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import logout_then_login
 from django.core.exceptions import MultipleObjectsReturned
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.urls import reverse
+from django.conf import settings
+
 
 from backend.forms import LoginForm
 from backend.models import RoleUser
@@ -11,11 +13,13 @@ from backend.models import RoleUser
 def do_login(request):
 
     if request.user.is_authenticated:
-        return redirect(reverse('member_list'))
+        return redirect(reverse('dashboard'))
 
     form = LoginForm()
-    data = {'form': form, 'title': 'PLN | E-Request System - Sign In',
-            'sub_title': 'PLN | E-Request System'}
+    data = {
+        'form': form, 
+        'title': settings.GLOBAL_TITLE + ' | Login'
+    }
 
     if request.POST:
 
@@ -39,11 +43,11 @@ def do_login(request):
                 response.set_cookie('error_msg', 'Login failed!', max_age=2)
                 return response
 
-            if not user.is_active or not user.pln_user.is_activated:
+            if not user.is_active or not user.admin_user.is_activated:
                 response.set_cookie('error_msg', 'Please activate your account', max_age=2)
                 return response
 
-            if user.pln_user.is_deleted is True:
+            if user.admin_user.is_deleted is True:
                 response.set_cookie('error_msg', 'Login failed!', max_age=2)
                 return response
 
@@ -67,12 +71,12 @@ def do_login(request):
             request.session['left_menu'] = user_left_menus
             request.session['menu'] = user_menu_id
             login(request, user)
-            return redirect('member_list')
+            return redirect('dashboard')
         else:
             response.set_cookie('error_msg', 'Login failed!', max_age=2)
             return response
 
-    return render(request, 'pln/backend/login.html', data)
+    return render(request, 'backend/login.html', data)
 
 
 def do_logout(request):

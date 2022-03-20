@@ -11,7 +11,7 @@ from django.utils.timezone import now
 
 
 class UserExtend(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='pln_user')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='admin_user')
     profile_pict_url = models.CharField(max_length=255, null=False)
     is_suspended = models.IntegerField(null=False, choices=((0, 'Not Suspended'), (1, 'Suspended')))
     sex = models.CharField(max_length=6, blank=True, choices=(('male', 'Male'),

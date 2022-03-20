@@ -1,9 +1,10 @@
 from django.shortcuts import render
+from django.conf import settings
 
 
 def show_dashboard(request):
 
-    data = {'title': 'PPA | E-Reqruitment System - Dashboard',
+    data = {'title': settings.GLOBAL_TITLE + ' | Dashboard',
             'sub_title': 'Dashboard',
             'email' : '',
             'name': '',

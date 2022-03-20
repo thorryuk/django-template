@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db import transaction, IntegrityError
 from django.shortcuts import render, redirect
@@ -14,11 +15,14 @@ LOG = logging.getLogger(__name__)
 
 
 def show_role(request):
-    data = {'title': 'PPA | E-Reqruitment System - Role Management',
-            'sub_title': 'Role Management',
-            'active_menu': 'admin_role'}
+    data = {
+        'title': settings.GLOBAL_TITLE + ' | Role List',
+        'sub_title': 'Role Management',
+        'active_menu': 'admin',
+        'sub_menu': 'admin_role'
+    }
 
-    return render(request, 'pln/backend/admin_role_list.html', data)
+    return render(request, 'backend/role-management/list.html', data)
 
 
 class GetRoleList(BaseDatatableView):
@@ -35,15 +39,17 @@ class GetRoleList(BaseDatatableView):
             delete_link = ''
             is_role_has_been_used = RoleUser.objects.filter(role_group_id=item.id)
             if not is_role_has_been_used:
-                delete_link = ' | <a class="btn btn-red" onclick="return confirm(\'Are you sure to delete this role?\'); " href="' + reverse('role_delete', args=[item.id]) + '">' + \
-                              '<i class="fa fa-trash"></i></a> '
+                delete_link = '<a class="btn btn-sm btn-alt-secondary" data-bs-toggle="tooltip" title="Delete" onclick="return confirm(\'Are you sure to delete this role?\'); " href="' + reverse('role_delete', args=[item.id]) + '">' + \
+                              '<i class="fa fa-times"></i></a> '
 
             json_data.append([
                 index + 1,
                 '<a href="' + reverse('role_user', args=[item.id]) + '">' + item.name + '</a>',
                 item.description,
-                '<a class="btn btn-info" href="' + reverse('role_detail', args=[item.id]) + '">'
-                '<i class="fa fa-search"></i></a> ' + delete_link
+                '<div class="btn-group">' \
+                '<a class="btn btn-sm btn-alt-secondary" data-bs-toggle="tooltip" title="Edit" href="' + reverse('role_detail', args=[item.id]) + '">' \
+                '<i class="fa fa-pencil-alt"></i></a> ' + delete_link +
+                '</div>'
             ])
 
         return json_data
@@ -51,19 +57,22 @@ class GetRoleList(BaseDatatableView):
 
 def show_role_detail(request, id=0):
 
-    data = {'title': 'PPA | E-Reqruitment System - Role Management',
-            'sub_title': 'Role Management - Detail',
-            'active_menu': 'admin_role',
-            'menus': Menu.objects.filter().order_by('order')}
-
     try:
         role = RoleGroup.objects.get(pk=id)
     except RoleGroup.DoesNotExist:
         response = redirect(reverse('role_list'))
         response.set_cookie('error_msg', 'Role doesn\'t exits', max_age=2)
         return response
+    
+    data = {
+        'title': settings.GLOBAL_TITLE + ' | Role Detail',
+        'sub_title': 'Detail & Edit Role',
+        'active_menu': 'admin',
+        'sub_menu': 'admin_role',
+        'menus': Menu.objects.filter().order_by('order'),
+        'role': role
+    }
 
-    data['role'] = role
 
     old_menu_selected_dict = {}
     for menu in role.rolemenu_set.all():
@@ -89,7 +98,7 @@ def show_role_detail(request, id=0):
         response.set_cookie('success_msg', 'Success update role', max_age=2)
         return response
 
-    return render(request, 'pln/backend/admin_role_detail.html', data)
+    return render(request, 'backend/role-management/add-edit.html', data)
 
 
 def delete_role(request, id=0):
@@ -122,10 +131,14 @@ def delete_role(request, id=0):
 
 def add_role(request):
 
-    data = {'title': 'PPA | E-Reqruitment System - Role Management',
-            'sub_title': 'Role Management - Add',
-            'active_menu': 'admin_role',
-            'form': NewRoleForm()}
+    data = {
+        'title': settings.GLOBAL_TITLE + ' | Role Add',
+        'sub_title': 'Add New Role',
+        'active_menu': 'admin',
+        'sub_menu': 'admin_role',
+        'form': NewRoleForm(),
+        'menus': Menu.objects.filter().order_by('order')
+    }
 
     if request.method == 'POST':
         data['form'] = NewRoleForm(request.POST)
@@ -139,9 +152,13 @@ def add_role(request):
             sid = transaction.savepoint()
             try:
 
-                new_role = RoleGroup(name=cleaned_data.get('name'),
-                                     description=cleaned_data.get('description'),
-                                     create_date=now(), create_by=request.user.username)
+                new_role = RoleGroup(
+                    name=cleaned_data.get('name').lower()
+                    ,
+                    description=cleaned_data.get('description'),
+                    create_date=now(), 
+                    create_by=request.user.username
+                )
                 new_role.save()
                 transaction.savepoint_commit(sid)
             except IntegrityError as error:
@@ -150,19 +167,31 @@ def add_role(request):
 
                 response = redirect(reverse('role_list'))
                 response.set_cookie('error_msg', 'Failed add role ' + str(error), max_age=2)
-                return response
+                return 
+
+            menu_selected_list = request.POST.getlist('menus_selected[]')
+
+            if menu_selected_list:
+
+                for menu_id in menu_selected_list:
+                    try:
+                        new_role_menu = RoleMenu(menu_id=menu_id, role_group_id=new_role.id)
+                        new_role_menu.save()
+                    except IntegrityError as error:
+                        pass
 
             response = redirect(reverse('role_list'))
             response.set_cookie('success_msg', 'Success add new role', max_age=2)
             return response
 
-    return render(request, 'pln/backend/admin_add_role.html', data)
+        else:
+            response = redirect(reverse('role_list'))
+            response.set_cookie('error_msg', 'Error : ' + str(str(form.errors)), max_age=2)
+            return response
+    return render(request, 'backend/role-management/add-edit.html', data)
 
 
 def show_role_user(request, id=0):
-    data = {'title': 'PPA | E-Reqruitment System - Role Management',
-            'active_menu': 'admin_role',
-            'role_id': id}
 
     try:
         role = RoleGroup.objects.get(pk=id)
@@ -171,9 +200,15 @@ def show_role_user(request, id=0):
         response.set_cookie('error_msg', 'Role doesn\'t exits', max_age=2)
         return response
 
-    data['sub_title'] = 'Role {} User List'.format(role.name.capitalize())
+    data = {
+        'title': settings.GLOBAL_TITLE + ' | Role User List',
+        'sub_title': 'Role {}'.format(role.name.capitalize()),
+        'active_menu': 'admin',
+        'sub_menu': 'admin_role',
+        'role_id': id
+    }
 
-    return render(request, 'pln/backend/admin_role_user_list.html', data)
+    return render(request, 'backend/role-management/list-roleuser.html', data)
 
 
 class GetRoleUserList(BaseDatatableView):
@@ -189,7 +224,7 @@ class GetRoleUserList(BaseDatatableView):
 
             json_data.append([
                 index + 1,
-                item.role_group.name,
+                # item.role_group.name,
                 item.user.first_name + ' ' + item.user.last_name,
                 '<a class="btn btn-info" href="' + reverse('user_detail', args=[item.user_id]) + '">'
                 '<i class="fa fa-search"></i></a> '

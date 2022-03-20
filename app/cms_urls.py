@@ -20,8 +20,7 @@ from backend.views.dashboard import show_dashboard
 from backend.views.forget_password import show_forget_password, do_reset_password
 from backend.views.js_api import get_city_by_country, get_user_by_role
 from backend.views.login import do_login, do_logout
-from backend.views.role_management import show_role, GetRoleList, show_role_detail, delete_role, \
-    add_role, show_role_user, GetRoleUserList
+from backend.views.role_management import show_role, GetRoleList, show_role_detail, delete_role, add_role, show_role_user, GetRoleUserList
 from backend.views.user_management import show_user_list, add_new_user, detail, delete, \
     user_activation, manual_active_deactive_user, reset_password
 from backend.views.user_profile import show_profile_user, change_password
@@ -44,13 +43,11 @@ urlpatterns = [
     url(r'^reset_password/$', do_reset_password, name='do_reset_password'),
     url(r'^activation/$', user_activation, name='user_activation'),
 
-
-    url(r'^dashboard/$', show_dashboard, name='dashboard'),
-
     
     # Dashboard URL
-    # url(r'^dashboard/$', login_required()(validate_user_entry_menu(1)(show_dashboard)),
-    #     name='dashboard'),
+    url(r'^dashboard/$', login_required()(validate_user_entry_menu(1)(show_dashboard)),
+        name='dashboard'),
+    # url(r'^dashboard/$', show_dashboard, name='dashboard'),
 
     
     # User Profile

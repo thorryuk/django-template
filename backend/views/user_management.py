@@ -10,6 +10,7 @@ from dateutil.relativedelta import relativedelta
 from django import http
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction, IntegrityError
 from django.shortcuts import render, redirect, HttpResponse
@@ -20,22 +21,25 @@ from django.utils.timezone import now
 
 from backend.forms import AddUserForm, EditUserForm
 from backend.models import UserExtend, RoleUser, RoleGroup
-from app.common_functions import handle_uploaded_file_local, password_generator
+from app.common_functions import handle_uploaded_file_local, password_generator, uploads
 
 
 LOG = logging.getLogger(__name__)
 
 
 def show_user_list(request):
-    data = {'title': 'PLN | E-Request System - User List',
-            'sub_title': 'User List',
-            'profile_pict': '',
-            'email': '',
-            'name': '',
-            'active_menu': 'admin_user'}
+    data = {
+        'title': settings.GLOBAL_TITLE + ' | User List',
+        'sub_title': 'User List',
+        'profile_pict': '',
+        'email': '',
+        'name': '',
+        'active_menu': 'admin',
+        'sub_menu': 'admin_user'
+    }
 
-    user_list = User.objects.filter(is_staff=1, pln_user__is_deleted=False)
-    paginator = Paginator(user_list, 25)  # Show 25 contacts per page
+    user_list = User.objects.filter(is_staff=1, is_superuser=0, admin_user__is_deleted=False).order_by('first_name')
+    paginator = Paginator(user_list, 12)  # Show 25 contacts per page
 
     page = request.GET.get('page')
     try:
@@ -49,20 +53,22 @@ def show_user_list(request):
 
     data['users'] = users
 
-    return render(request, 'pln/backend/admin_user_list.html', data)
+    return render(request, 'backend/user-management/list.html', data)
 
 
 def add_new_user(request):
 
-    data = {'title': 'PLN | E-Request System - Add New User',
-            'sub_title': 'Add New User',
-            'profile_pict': '',
-            'email': '',
-            'name': '',
-            'active_menu': 'admin_user',
-            'form': AddUserForm(),
-            'roles': RoleGroup.objects.filter()
-            }
+    data = {
+        'title': settings.GLOBAL_TITLE + ' | Add New User',
+        'sub_title': 'Add New User',
+        'profile_pict': '',
+        'email': '',
+        'name': '',
+        'active_menu': 'admin',
+        'sub_menu': 'admin_user',
+        'form': AddUserForm(),
+        'roles': RoleGroup.objects.filter()
+    }
 
     if request.method == 'POST':
         data['form'] = AddUserForm(request.POST, request.FILES)
@@ -77,12 +83,9 @@ def add_new_user(request):
             email = str(cleaned_data.get('email')).lower()
             gender = cleaned_data.get('gender')
             address = str(cleaned_data.get('address'))
-            phone = str(cleaned_data.get('phone')).lower()
-            email_signature = str(cleaned_data.get('email_signature')).lower()
+            # phone = str(cleaned_data.get('phone')).lower()
+            # email_signature = str(cleaned_data.get('email_signature')).lower()
             roles = cleaned_data.get('roles')
-            group = ''
-            if cleaned_data.get('group') != None:
-                group = cleaned_data.get('group')
 
             # validate email user
             user_by_email = User.objects.filter(email=email)
@@ -92,12 +95,8 @@ def add_new_user(request):
                 return response
 
             profile_pict = ''
-            if 'profile_pict' in request.FILES:
-                local_path = settings.BASE_DIR + '/static/profile_pictures/'
-                file_name = handle_uploaded_file_local(request.FILES['profile_pict'], local_path)
-                profile_pict = settings.BACKEND_HOST_PROTOCOL + '://' + \
-                               request.META['HTTP_HOST'] + settings.DEFAULT_PATH_PROFILE_PICT + \
-                               file_name
+            if 'images' in request.FILES:
+                profile_pict = uploads('profile-pictures', request.FILES['images'])
 
             # start transaction
             sid = transaction.savepoint()
@@ -105,25 +104,33 @@ def add_new_user(request):
             activation_key = generate_act_key(email)
 
             try:
+                default_password = password_generator()
 
                 # create django user
                 insert_user = User(username=email,
                                    email=email,
                                    first_name=first_name,
                                    last_name=last_name,
-                                   is_active=False,
-                                   is_staff=True)
+                                   is_active=True,
+                                   is_staff=True,
+                                   password=make_password('coba2128'))
                 insert_user.save()
+
 
                 today = datetime.date.today()
                 next_seven_days = today + relativedelta(days=7)
 
                 # create extended user data
                 insert_ext_user = UserExtend(user=insert_user,
-                                             is_suspended=0, profile_pict_url=profile_pict, sex=gender, address=address,
-                                             phone_number=phone,
-                                             email_signature=email_signature, create_date=now(),
-                                             create_by=request.user.username, is_activated=0,
+                                             is_suspended=0, 
+                                             profile_pict_url=profile_pict, 
+                                             sex=gender, 
+                                             address=address,
+                                             # phone_number=phone,
+                                             # email_signature=email_signature, 
+                                             create_date=now(),
+                                             create_by=request.user.username, 
+                                             is_activated=1,
                                              activation_key=activation_key,
                                              activation_expired_date=next_seven_days)
                 insert_ext_user.save()
@@ -142,33 +149,35 @@ def add_new_user(request):
 
             # Send Email Activation
 
-            host = settings.BACKEND_HOST_PROTOCOL + '://' + request.META['HTTP_HOST']
-            email_template = get_template('pln/email/activation_email.html')
-            email_template_param = {'activation_key': activation_key, 'current_host': host}
-            email_template_render = email_template.render(email_template_param)
+            # host = settings.BACKEND_HOST_PROTOCOL + '://' + request.META['HTTP_HOST']
+            # email_template = get_template('pln/email/activation_email.html')
+            # email_template_param = {'activation_key': activation_key, 'current_host': host}
+            # email_template_render = email_template.render(email_template_param)
 
-            send_mail_parameters = {
-                'to': [email],
-                'from': 'Perusahaan Listrik Negara <' + settings.DEFAULT_MAIL_FROM + '>',
-                'subject': 'Aktivasi User Kamu -- Perusahaan Listrik Negara',
-                'html': email_template_render
-            }
+            # send_mail_parameters = {
+            #     'to': [email],
+            #     'from': 'Perusahaan Listrik Negara <' + settings.DEFAULT_MAIL_FROM + '>',
+            #     'subject': 'Aktivasi User Kamu -- Perusahaan Listrik Negara',
+            #     'html': email_template_render
+            # }
 
-            celery = Celery()
-            celery.config_from_object('django.conf:settings', namespace='CELERY')
-            try:
-                celery.send_task("scheduler.tasks.send_mail_task", args=[send_mail_parameters], queue='celery',
-                                 routing_key='celery')
-            except Exception as exception:
-                LOG.error(exception)
+            # celery = Celery()
+            # celery.config_from_object('django.conf:settings', namespace='CELERY')
+            # try:
+            #     celery.send_task("scheduler.tasks.send_mail_task", args=[send_mail_parameters], queue='celery',
+            #                      routing_key='celery')
+            # except Exception as exception:
+            #     LOG.error(exception)
 
             response = redirect(reverse('user_list'))
             response.set_cookie('success_msg', 'Success Added New User', max_age=2)
             return response
         else:
-            print('tess')
+            response = redirect(reverse('user_list'))
+            response.set_cookie('error_msg', 'Error : ' + str(str(form.errors)), max_age=2)
+            return response
 
-    return render(request, 'pln/backend/admin_add_user.html', data)
+    return render(request, 'backend/user-management/add-edit.html', data)
 
 
 def detail(request, id=0):
@@ -176,22 +185,23 @@ def detail(request, id=0):
     try:
         user = User.objects.get(pk=id)
     except User.DoesNotExist:
-        return redirect(reverse('user_list'))
+        response = redirect(reverse('user_list'))
+        response.set_cookie('error_msg', 'User Not Found', max_age=2)
+        return response
 
-    
-    # return HttpResponse(request.user.username)
-
-    data = {'title': 'PLN | E-Request System - User Detail',
-            'sub_title': 'User Detail',
-            'user': user,
-            'active_menu': 'admin_user',
-            'form': EditUserForm(),
-            'roles': RoleGroup.objects.filter()
-            }
+    data = {
+        'title': settings.GLOBAL_TITLE + ' | Profile - ' + user.first_name + ' ' + user.last_name,
+        'sub_title': 'User Detail',
+        'user': user,
+        'active_menu': 'admin',
+        'sub_menu': 'admin_user',
+        'form': EditUserForm(),
+        'roles': RoleGroup.objects.filter()
+    }
 
     if request.method == 'POST':
         form = EditUserForm(request.POST)
-        ext_user = user.pln_user
+        ext_user = user.admin_user
         user_role = user.roleuser
 
         if form.is_valid():
@@ -202,23 +212,16 @@ def detail(request, id=0):
             last_name = str(cleaned_data.get('last_name')).lower()
             gender = cleaned_data.get('gender')
             address = str(cleaned_data.get('address'))
-            phone = str(cleaned_data.get('phone')).lower()
-            email_signature = str(cleaned_data.get('email_signature')).lower()
-            new_role = cleaned_data.get('role')
-            group = ''
-            if cleaned_data.get('group') != None:
-                group = cleaned_data.get('group')
+            # phone = str(cleaned_data.get('phone')).lower()
+            # email_signature = str(cleaned_data.get('email_signature')).lower()
+            new_role = cleaned_data.get('roles')
+            profile_pict = user.admin_user.profile_pict_url
+            if 'images' in request.FILES:
+                profile_pict = uploads('profile-pictures', request.FILES['images'])
 
-            profile_pict = ''
-            if 'profile_pict' in request.FILES:
-                local_path = settings.BASE_DIR + '/static/profile_pictures/'
-                file_name = handle_uploaded_file_local(request.FILES['profile_pict'], local_path)
-                profile_pict = settings.BACKEND_HOST_PROTOCOL + '://' + request.META['HTTP_HOST'] + \
-                               settings.DEFAULT_PATH_PROFILE_PICT + file_name
 
             # start transaction
             sid = transaction.savepoint()
-            uname = request.user.username
 
             try:
                 user.first_name = first_name
@@ -227,18 +230,17 @@ def detail(request, id=0):
 
                 ext_user.sex = gender
                 ext_user.address = address
-                ext_user.phone_number = phone
-                ext_user.email_signature = email_signature
-
-                if profile_pict != '' :
-                    ext_user.profile_pict_url = profile_pict
+                # ext_user.phone_number = phone
+                # ext_user.email_signature = email_signature
+                ext_user.profile_pict_url = profile_pict
 
                 ext_user.save()
 
-                user_role.role_group_id = new_role
-                user_role.modify_date = now()
-                user_role.modified_by = request.user.username
-                user_role.save()
+                if int(user_role.role_group_id) != int(new_role):
+                    user_role.role_group_id = new_role
+                    user_role.modify_date = now()
+                    user_role.modified_by = request.user.username
+                    user_role.save()
 
                 transaction.savepoint_commit(sid)
             except IntegrityError as error:
@@ -247,13 +249,15 @@ def detail(request, id=0):
 
             data['user'] = user
 
-            # response = render(request, 'pln/backend/admin_user_detail.html', data)
             response = redirect(reverse('user_detail', args=[id]))
-            response.set_cookie('success_msg', 'Success Edited User', max_age=2)
+            response.set_cookie('success_msg', 'Success Updated User', max_age=2)
 
             return response
-
-    return render(request, 'pln/backend/admin_user_detail.html', data)
+        else:
+            response = redirect(reverse('user_list'))
+            response.set_cookie('error_msg', 'Error : ' + str(str(form.errors)), max_age=2)
+            return response
+    return render(request, 'backend/user-management/detail.html', data)
 
 
 def delete(request, id=0):

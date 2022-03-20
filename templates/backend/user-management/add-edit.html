@@ -1,0 +1,155 @@
+{% extends 'backend/layout/base-layout.html' %}
+
+{% load static %}
+
+
+{% block css %}
+<style type="text/css">
+  input[type="file"] {
+    display: none;
+  }
+
+  .img-box {
+    object-fit: contain;
+    width: 200px;
+    height: 200px;
+  }
+</style>
+{% endblock %}
+
+
+{% block javascript %}
+<script type="text/javascript">
+  $(document).ready( function() {
+      $(document).on('change', '.btn-file :file', function() {
+    var input = $(this),
+      label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+    input.trigger('fileselect', [label]);
+    });
+
+    $('.btn-file :file').on('fileselect', function(event, label) {
+        
+        var input = $(this).parents('.input-group').find(':text'),
+            log = label;
+        
+        if( input.length ) {
+            input.val(log);
+        } else {
+            if( log ) alert(log);
+        }
+      
+    });
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            
+            reader.onload = function (e) {
+                $('#img-upload').attr('src', e.target.result);
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#images").change(function(){
+        readURL(this);
+    });   
+  });
+</script>
+{% endblock %}
+
+
+{% block content %}  
+
+<!-- Hero -->
+<div class="bg-body-light">
+  <div class="content content-full">
+    <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+      <h1 class="flex-grow-1 fs-3 fw-semibold my-2 my-sm-3">{{sub_title}}</h1>
+      <nav class="flex-shrink-0 my-2 my-sm-0 ms-sm-3" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">Administrator</li>
+          <li class="breadcrumb-item">User Management</li>
+          <li class="breadcrumb-item active" aria-current="page">Add User</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</div>
+<!-- END Hero -->
+
+<!-- Page Content -->
+<div class="content">
+  <!-- Your Block -->
+  <div class="block block-rounded col-lg-7 mx-auto">
+    <!-- <div class="block-header block-header-default">
+      <h3 class="block-title">Block Title</h3>
+    </div> -->
+    <div class="block-content">                       
+      <form action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- Basic Elements -->
+        <h2 class="content-heading pt-0">
+          <i class="fa fa-fw fa-user-circle text-muted me-1"></i> User Profile
+        </h2>
+        <div class="row push">
+          <div class="col-lg-12">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-4">
+                  <label class="form-label" for="first_name">First Name</label>
+                  <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-4">
+                  <label class="form-label" for="last_name">Last Name</label>
+                  <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name" required>
+                </div>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="email">Email</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Ex: emailinput@gmail.com">
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="gender">Gender</label>
+              <select class="form-select" id="gender" name="gender" required>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="address">Address</label>
+              <textarea class="form-control" id="address" name="address" rows="4" placeholder="Address content.." required></textarea>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="roles">Roles</label>
+              <select class="form-select" id="roles" name="roles" required>
+                {% for role in roles %}
+                    <option value="{{ role.id }}">{{ role.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="images">Profile Picture</label>
+              <img id='img-upload' src="{% static 'assets-cms/media/avatars/avatar2.jpg' %}" class="rounded d-block mb-4 img-box" alt="...">
+              <label class="btn btn-sm btn-secondary btn-block me-1">
+                <input type="file" id="images" name="images">
+                <i class="fa fa-fw fa-cloud-upload-alt me-1"></i> Upload Image
+              </label>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="block-content block-content-full block-content-sm bg-body-light text-end">
+      <button type="submit" class="btn btn-sm btn-alt-primary">
+        <i class="fa fa-check opacity-50 me-1"></i> Submit
+      </button>
+    </div>
+  </div>
+  <!-- END Your Block -->
+</div>
+<!-- END Page Content -->
+
+{% endblock content %}

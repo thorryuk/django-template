@@ -215,7 +215,7 @@ def validate_user_entry_menu(id_action_menu):
         @wraps(view_func, assigned=available_attrs(view_func))
         def wrap(request, *args, **kwargs):
 
-            false_respon = HttpResponseRedirect(reverse('member_list'))
+            false_respon = HttpResponseRedirect(reverse('dashboard'))
             msg_1 = 'Forbidden to access current menu'
 
             if not request.user.is_staff:

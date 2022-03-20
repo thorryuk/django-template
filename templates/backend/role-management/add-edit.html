@@ -1,0 +1,119 @@
+{% extends 'backend/layout/base-layout.html' %}
+
+{% load static %}
+
+{% load string_tags %}
+
+{% block css %}
+{% endblock %}
+
+
+{% block javascript %}
+{% endblock %}
+
+
+{% block content %}  
+
+<!-- Hero -->
+<div class="bg-body-light">
+  <div class="content content-full">
+    <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+      <h1 class="flex-grow-1 fs-3 fw-semibold my-2 my-sm-3">{{sub_title}}</h1>
+      <nav class="flex-shrink-0 my-2 my-sm-0 ms-sm-3" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">Administrator</li>
+          <li class="breadcrumb-item">User Management</li>
+          <li class="breadcrumb-item active" aria-current="page">Add User</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</div>
+<!-- END Hero -->
+
+<!-- Page Content -->
+<div class="content">
+  <!-- Your Block -->
+  <div class="block block-rounded col-lg-7 mx-auto">
+    <!-- <div class="block-header block-header-default">
+      <h3 class="block-title">Block Title</h3>
+    </div> -->
+    <form action="" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="block-content">                       
+        <!-- Basic Elements -->
+        <h2 class="content-heading pt-0">
+          <i class="fa fa-fw fa-plus text-muted me-1"></i> Role Data
+        </h2>
+        <div class="row push">
+          <div class="col-lg-12">
+            <div class="row">
+              <div class="mb-4">
+                <label class="form-label" for="name">Name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Role Name" {% if role %} value="{{ role.name }}" {% endif %} required>
+              </div>
+              <div class="mb-4">
+                <label class="form-label" for="description">Descriptions</label>
+                <input type="text" class="form-control" id="description" name="description" placeholder="Description Role" {% if role %} value="{{ role.description }}" {% endif %} required>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Role Menu -->
+        <h2 class="content-heading pt-0">
+          <i class="fa fa-fw fa-check text-muted me-1"></i> Role Menu
+        </h2>
+        <div class="row push">
+          <div class="col-lg-12">
+            <ol>
+              {% for menu in menus %}
+                {% if menu.parent_menu == None %}
+                <li>
+                  <div class="form-group">
+                    <input type="checkbox" name="menus_selected[]" {% if role %} {{ menu.id | compare_dict:old_menu_selected_dict }} {% endif %} value="{{ menu.id }}">
+                    <label for="">{{menu.name}}</label>
+                  </div>
+                  <ol>
+                    {% for child_menu in menus %}
+                      {% if child_menu.parent_menu_id == menu.id %}
+                      <li>
+                        <div class="form-group">
+                          <input type="checkbox" name="menus_selected[]" {% if role %} {{ child_menu.id | compare_dict:old_menu_selected_dict }} {% endif %} value="{{ child_menu.id }}">
+                          <label for="">{{child_menu.name}}</label>
+                        </div>
+                      </li>
+                      <ol>
+                        {% for child_child_menu in menus %}
+                          {% if child_child_menu.parent_menu_id == child_menu.id %}
+                          <li>
+                            <div class="form-group">
+                              <input type="checkbox" name="menus_selected[]" {% if role %} {{ child_child_menu.id | compare_dict:old_menu_selected_dict }} {% endif %} value="{{ child_child_menu.id }}">
+                              <label for="">{{child_child_menu.name}}</label>
+                            </div>
+                          </li>
+                          {% endif %}
+                        {% endfor %}
+                      </ol>
+                      {% endif %}
+                    {% endfor %}
+                  </ol>
+                </li>    
+                {% endif %}
+              {% endfor %}
+            </ol>
+          </div>
+        </div>
+      </div>
+      <div class="block-content block-content-full block-content-sm bg-body-light text-end">
+        <button type="submit" class="btn btn-sm btn-alt-primary">
+          <i class="fa fa-check opacity-50 me-1"></i> Submit
+        </button>
+      </div>
+    </form>
+  </div>
+  <!-- END Your Block -->
+</div>
+<!-- END Page Content -->
+
+{% endblock content %}
