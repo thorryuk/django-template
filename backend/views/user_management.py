@@ -113,7 +113,7 @@ def add_new_user(request):
                                    last_name=last_name,
                                    is_active=True,
                                    is_staff=True,
-                                   password=make_password('coba2128'))
+                                   password=make_password(default_password))
                 insert_user.save()
 
 
@@ -368,9 +368,9 @@ def user_activation(request):
     return render(request, 'pln/backend/success_activated_user.html', data)
 
 
-def manual_active_deactive_user(request, id=0, types='active'):
+def manual_active_deactive_user(request, id=0):
 
-    response = redirect(reverse('user_list'))
+    response = redirect(reverse('user_detail', args=[id]))
 
     try:
         user = User.objects.get(pk=id)
@@ -380,9 +380,9 @@ def manual_active_deactive_user(request, id=0, types='active'):
 
     if user.is_active == False:
 
-        if user.is_active and user.pln_user.is_activated:
-            response.set_cookie('error_msg', 'User has been actived, please login', max_age=2)
-            return response
+        # if user.is_active and user.admin_user.is_activated:
+        #     response.set_cookie('error_msg', 'User has been actived, please login', max_age=2)
+        #     return response
 
         # start transaction
         sid = transaction.savepoint()
@@ -390,7 +390,7 @@ def manual_active_deactive_user(request, id=0, types='active'):
             user.is_active = True
             user.save()
 
-            user_ext = user.pln_user
+            user_ext = user.admin_user
             user_ext.is_activated = 1
             user_ext.save()
         except IntegrityError as integrity_error:
@@ -411,7 +411,7 @@ def manual_active_deactive_user(request, id=0, types='active'):
             user.is_active = False
             user.save()
 
-            user_ext = user.pln_user
+            user_ext = user.admin_user
             user_ext.is_activated = 0
             user_ext.save()
         except IntegrityError as integrity_error:

@@ -69,7 +69,7 @@ urlpatterns = [
         login_required()(validate_user_entry_menu(20)(detail)), name='user_detail'),
     url(r'^administrator/user/delete/(?P<id>[0-9]+)/$',
         login_required()(validate_user_entry_menu(57)(delete)), name='user_delete'),
-    url(r'^administrator/user/manual-activation/(?P<id>[0-9]+)/(?P<types>[a-z]+)/$',
+    url(r'^administrator/user/manual-activation/(?P<id>[0-9]+)/$',
         login_required()(validate_user_entry_menu(101)(manual_active_deactive_user)),
         name='user_manual_activation'),
     url(r'^administrator/user/reset-password/(?P<id>[0-9]+)/$',

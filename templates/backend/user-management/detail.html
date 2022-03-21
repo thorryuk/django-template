@@ -18,6 +18,10 @@
   .img-hero {
     object-fit: cover;
   }
+
+  .py-5 {
+    padding-bottom: unset !important;
+  }
 </style>
 {% endblock %}
 
@@ -75,12 +79,19 @@
         <h2 class="h4 fw-bold text-white-75">
           {{ user.roleuser.role_group.description | capfirst }}
         </h2>
-        <!-- <button type="button" class="btn btn-primary m-1">
-          <i class="fa fa-fw fa-user-plus opacity-50 me-1"></i> Add
-        </button>
-        <button type="button" class="btn btn-secondary m-1">
-          <i class="fa fa-fw fa-envelope opacity-50 me-1"></i> Message
-        </button> -->
+        
+        {% if request.user.roleuser.role_group.id == 2 %}
+          {% if user.is_active == False %}
+          <a href="{% url 'user_manual_activation' id=user.id %}" class="btn btn-success m-1">
+            <i class="fa fa-fw fa-check opacity-50 me-1"></i> Activate
+          </a>
+          {% else %}
+          <a href="{% url 'user_manual_activation' id=user.id %}" class="btn btn-danger m-1">
+            <i class="fa fa-fw fa-times opacity-50 me-1"></i> Deactivate
+          </a>
+          {% endif %}
+        {% endif %}
+          
       </div>
     </div>
   </div>
