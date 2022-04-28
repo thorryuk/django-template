@@ -20,6 +20,7 @@ from backend.views.dashboard import show_dashboard
 from backend.views.forget_password import show_forget_password, do_reset_password
 from backend.views.js_api import get_city_by_country, get_user_by_role
 from backend.views.login import do_login, do_logout
+from backend.views.menu_management import GetMenuList, add_menu, show_menu
 from backend.views.role_management import show_role, GetRoleList, show_role_detail, delete_role, add_role, show_role_user, GetRoleUserList
 from backend.views.user_management import show_user_list, add_new_user, detail, delete, \
     user_activation, manual_active_deactive_user, reset_password
@@ -90,5 +91,18 @@ urlpatterns = [
         login_required()(validate_user_entry_menu(97)(delete_role)), name='role_delete'),
     url(r'^administrator/role/add/$', login_required()(validate_user_entry_menu(48)(add_role)),
         name='add_role'),
+
+    
+    # Menu Management
+    url(r'^administrator/menu/$', login_required()(validate_user_entry_menu(100)(show_menu)),
+        name='menu_list'),
+    url(r'^administrator/menu/ajax/$', GetMenuList.as_view(), name='menu_list_ajax'),
+    url(r'^administrator/menu/add/$', login_required()(validate_user_entry_menu(103)(add_menu)),
+        name='menu_add'),
+    # url(r'^administrator/role/list/ajax/$', GetRoleList.as_view(), name='role_list_ajax'),
+    # url(r'^administrator/role/detail/(?P<id>[0-9]+)/$',
+    #     login_required()(validate_user_entry_menu(49)(show_role_detail)), name='role_detail'),
+    # url(r'^administrator/role/delete/(?P<id>[0-9]+)/$',
+    #     login_required()(validate_user_entry_menu(97)(delete_role)), name='role_delete'),
 
 ]

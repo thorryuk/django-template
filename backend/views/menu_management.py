@@ -14,42 +14,46 @@ from backend.models import RoleGroup, RoleUser, Menu, RoleMenu
 LOG = logging.getLogger(__name__)
 
 
-def show_role(request):
+def show_menu(request):
     data = {
-        'title': settings.GLOBAL_TITLE + ' | Role List',
-        'sub_title': 'Role Management',
+        'title': settings.GLOBAL_TITLE + ' | Menu List',
+        'sub_title': 'Menu Management',
         'active_menu': 'admin',
-        'sub_menu': 'admin_role'
+        'sub_menu': 'admin_menu'
     }
 
-    return render(request, 'backend/role-management/list.html', data)
+    return render(request, 'backend/menu-management/list.html', data)
 
 
-class GetRoleList(BaseDatatableView):
+class GetMenuList(BaseDatatableView):
 
     def get_initial_queryset(self):
 
-        return RoleGroup.objects.filter().order_by('-id')
+        return Menu.objects.filter().order_by('id', 'parent_menu_id')
 
     def prepare_results(self, qs):
 
         json_data = []
         for index, item in enumerate(qs):
 
-            delete_link = ''
-            is_role_has_been_used = RoleUser.objects.filter(role_group_id=item.id)
-            if not is_role_has_been_used:
-                delete_link = '<a class="btn btn-sm btn-alt-secondary" data-bs-toggle="tooltip" title="Delete" onclick="return confirm(\'Are you sure to delete this role?\'); " href="' + reverse('role_delete', args=[item.id]) + '">' + \
-                              '<i class="fa fa-times"></i></a> '
+            # delete_link = ''
+            # is_role_has_been_used = RoleUser.objects.filter(role_group_id=item.id)
+            # if not is_role_has_been_used:
+            #     delete_link = '<a class="btn btn-sm btn-alt-secondary" data-bs-toggle="tooltip" title="Delete" onclick="return confirm(\'Are you sure to delete this role?\'); " href="' + reverse('role_delete', args=[item.id]) + '">' + \
+            #                   '<i class="fa fa-times"></i></a> '
 
             json_data.append([
                 index + 1,
-                '<a href="' + reverse('role_user', args=[item.id]) + '">' + item.name + '</a>',
-                item.description,
-                '<div class="btn-group">' \
-                '<a class="btn btn-sm btn-alt-secondary" data-bs-toggle="tooltip" title="Edit" href="' + reverse('role_detail', args=[item.id]) + '">' \
-                '<i class="fa fa-pencil-alt"></i></a> ' + delete_link +
-                '</div>'
+                item.name,
+                item.alias_name,
+                item.is_left_menu,
+                item.link,
+                item.icon,
+                item.is_tree,
+                # '<div class="btn-group">' \
+                # '<a class="btn btn-sm btn-alt-secondary" data-bs-toggle="tooltip" title="Edit" href="' + reverse('role_detail', args=[item.id]) + '">' \
+                # '<i class="fa fa-pencil-alt"></i></a> ' + delete_link +
+                # '</div>'
             ])
 
         return json_data
@@ -94,26 +98,6 @@ def show_role_detail(request, id=0):
                 except IntegrityError as error:
                     pass
 
-            user_left_menus = []
-            user_menu_id = []
-            # Load Left Menu
-            role_user = RoleUser.objects.get(user=request.user.id)
-            for role_menu in role_user.role_group.rolemenu_set.all().order_by('menu__order'):
-                if role_menu.menu.is_left_menu:
-                    menu = {"menu_id": role_menu.menu.id,
-                            "name": role_menu.menu.name,
-                            'link': role_menu.menu.link,
-                            'alias': role_menu.menu.alias_name,
-                            'is_left': role_menu.menu.is_left_menu,
-                            'parent_id': role_menu.menu.parent_menu_id,
-                            'icon': role_menu.menu.icon,
-                            'is_tree': role_menu.menu.is_tree}
-                    user_left_menus.append(menu)
-                user_menu_id.append(role_menu.menu_id)
-
-            request.session['left_menu'] = user_left_menus
-            request.session['menu'] = user_menu_id
-
         response = redirect(reverse('role_detail', args=[id]))
         response.set_cookie('success_msg', 'Success update role', max_age=2)
         return response
@@ -149,13 +133,13 @@ def delete_role(request, id=0):
     return response
 
 
-def add_role(request):
+def add_menu(request):
 
     data = {
-        'title': settings.GLOBAL_TITLE + ' | Role Add',
-        'sub_title': 'Add New Role',
+        'title': settings.GLOBAL_TITLE + ' | Menu Add',
+        'sub_title': 'Add New Menu',
         'active_menu': 'admin',
-        'sub_menu': 'admin_role',
+        'sub_menu': 'admin_menu',
         'form': NewRoleForm(),
         'menus': Menu.objects.filter().order_by('order')
     }
@@ -185,50 +169,19 @@ def add_role(request):
                 LOG.error(error)
                 transaction.savepoint_rollback(sid)
 
-                response = redirect(reverse('role_list'))
+                response = redirect(reverse('menu_list'))
                 response.set_cookie('error_msg', 'Failed add role ' + str(error), max_age=2)
-                return 
+                return
 
-            menu_selected_list = request.POST.getlist('menus_selected[]')
-
-            if menu_selected_list:
-
-                for menu_id in menu_selected_list:
-                    try:
-                        new_role_menu = RoleMenu(menu_id=menu_id, role_group_id=new_role.id)
-                        new_role_menu.save()
-                    except IntegrityError as error:
-                        pass
-
-            user_left_menus = []
-            user_menu_id = []
-            # Load Left Menu
-            role_user = RoleUser.objects.get(user=request.user.id)
-            for role_menu in role_user.role_group.rolemenu_set.all().order_by('menu__order'):
-                if role_menu.menu.is_left_menu:
-                    menu = {"menu_id": role_menu.menu.id,
-                            "name": role_menu.menu.name,
-                            'link': role_menu.menu.link,
-                            'alias': role_menu.menu.alias_name,
-                            'is_left': role_menu.menu.is_left_menu,
-                            'parent_id': role_menu.menu.parent_menu_id,
-                            'icon': role_menu.menu.icon,
-                            'is_tree': role_menu.menu.is_tree}
-                    user_left_menus.append(menu)
-                user_menu_id.append(role_menu.menu_id)
-
-            request.session['left_menu'] = user_left_menus
-            request.session['menu'] = user_menu_id
-
-            response = redirect(reverse('role_list'))
+            response = redirect(reverse('menu_list'))
             response.set_cookie('success_msg', 'Success add new role', max_age=2)
             return response
 
         else:
-            response = redirect(reverse('role_list'))
+            response = redirect(reverse('menu_list'))
             response.set_cookie('error_msg', 'Error : ' + str(str(form.errors)), max_age=2)
             return response
-    return render(request, 'backend/role-management/add-edit.html', data)
+    return render(request, 'backend/menu-management/add-edit.html', data)
 
 
 def show_role_user(request, id=0):
