@@ -3,12 +3,13 @@ import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db import transaction, IntegrityError
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.timezone import now
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
-from backend.forms import NewRoleForm
+from backend.forms import MenuForm
 from backend.models import RoleGroup, RoleUser, Menu, RoleMenu
 
 LOG = logging.getLogger(__name__)
@@ -29,7 +30,7 @@ class GetMenuList(BaseDatatableView):
 
     def get_initial_queryset(self):
 
-        return Menu.objects.filter().order_by('id', 'parent_menu_id')
+        return Menu.objects.filter().order_by('-is_left_menu', '-parent_menu_id')
 
     def prepare_results(self, qs):
 
@@ -44,7 +45,9 @@ class GetMenuList(BaseDatatableView):
 
             json_data.append([
                 index + 1,
-                item.name,
+                item.id,
+                '<a href="' + reverse('menu_detail', args=[item.id]) + '">' + item.name + '</a>',
+                item.parent_menu_id,
                 item.alias_name,
                 item.is_left_menu,
                 item.link,
@@ -59,50 +62,26 @@ class GetMenuList(BaseDatatableView):
         return json_data
 
 
-def show_role_detail(request, id=0):
+def detail_menu(request, id=0):
 
     try:
-        role = RoleGroup.objects.get(pk=id)
-    except RoleGroup.DoesNotExist:
-        response = redirect(reverse('role_list'))
-        response.set_cookie('error_msg', 'Role doesn\'t exits', max_age=2)
+        menu = Menu.objects.get(pk=id)
+    except Menu.DoesNotExist:
+        response = redirect(reverse('menu_list'))
+        response.set_cookie('error_msg', 'Menu doesn\'t exits', max_age=2)
         return response
     
     data = {
-        'title': settings.GLOBAL_TITLE + ' | Role Detail',
-        'sub_title': 'Detail & Edit Role',
+        'title': settings.GLOBAL_TITLE + ' | Menu Detail',
+        'sub_title': 'Detail & Edit Menu',
         'active_menu': 'admin',
-        'sub_menu': 'admin_role',
-        'menus': Menu.objects.filter().order_by('order'),
-        'role': role
+        'sub_menu': 'admin_menu',
+        'menu': menu,
+        'form': MenuForm(),
+        'parent_menu': Menu.objects.filter(is_left_menu=True).order_by('order')
     }
 
-
-    old_menu_selected_dict = {}
-    for menu in role.rolemenu_set.all():
-        old_menu_selected_dict[menu.menu_id] = menu.menu.name
-
-    data['old_menu_selected_dict'] = old_menu_selected_dict
-
-    if request.method == 'POST':
-        menu_selected_list = request.POST.getlist('menus_selected[]')
-        if menu_selected_list:
-
-            # Delete old role
-            role.rolemenu_set.all().delete()
-
-            for menu_id in menu_selected_list:
-                try:
-                    new_role_menu = RoleMenu(menu_id=menu_id, role_group_id=id)
-                    new_role_menu.save()
-                except IntegrityError as error:
-                    pass
-
-        response = redirect(reverse('role_detail', args=[id]))
-        response.set_cookie('success_msg', 'Success update role', max_age=2)
-        return response
-
-    return render(request, 'backend/role-management/add-edit.html', data)
+    return render(request, 'backend/menu-management/add-edit.html', data)
 
 
 def delete_role(request, id=0):
@@ -135,17 +114,20 @@ def delete_role(request, id=0):
 
 def add_menu(request):
 
+    menu = Menu.objects
+
     data = {
         'title': settings.GLOBAL_TITLE + ' | Menu Add',
         'sub_title': 'Add New Menu',
         'active_menu': 'admin',
         'sub_menu': 'admin_menu',
-        'form': NewRoleForm(),
-        'menus': Menu.objects.filter().order_by('order')
+        'form': MenuForm(),
+        'menus': menu.filter().order_by('order'),
+        'parent_menu': menu.filter(is_left_menu=True).order_by('order')
     }
 
     if request.method == 'POST':
-        data['form'] = NewRoleForm(request.POST)
+        data['form'] = MenuForm(request.POST)
         form = data['form']
 
         if form.is_valid():
@@ -155,26 +137,27 @@ def add_menu(request):
             # start transaction
             sid = transaction.savepoint()
             try:
-
-                new_role = RoleGroup(
-                    name=cleaned_data.get('name').lower()
-                    ,
-                    description=cleaned_data.get('description'),
-                    create_date=now(), 
-                    create_by=request.user.username
+                new_menu = Menu(
+                    name=cleaned_data.get('name'),
+                    alias_name=cleaned_data.get('alias_name'),
+                    parent_menu_id=cleaned_data.get('parent_menu'),
+                    link=cleaned_data.get('link'),
+                    icon=cleaned_data.get('icon'),
+                    is_left_menu=cleaned_data.get('left_menu'),
+                    is_tree=cleaned_data.get('tree')
                 )
-                new_role.save()
+                new_menu.save()
                 transaction.savepoint_commit(sid)
             except IntegrityError as error:
                 LOG.error(error)
                 transaction.savepoint_rollback(sid)
 
                 response = redirect(reverse('menu_list'))
-                response.set_cookie('error_msg', 'Failed add role ' + str(error), max_age=2)
+                response.set_cookie('error_msg', 'Failed add menu ' + str(error), max_age=2)
                 return
 
             response = redirect(reverse('menu_list'))
-            response.set_cookie('success_msg', 'Success add new role', max_age=2)
+            response.set_cookie('success_msg', 'Success add new menu', max_age=2)
             return response
 
         else:

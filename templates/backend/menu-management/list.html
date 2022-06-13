@@ -18,7 +18,7 @@ $(function () {
   "use strict";
   
   // list role
-  $('#role_list').DataTable({
+  $('#menu_list').DataTable({
     'paging'      : true,
     'lengthChange': false,
     'searching'   : false,
@@ -30,7 +30,7 @@ $(function () {
     "displayLength":100,
     'columnDefs': [
       {
-        targets: [0, 3, -1],
+        targets: [0, 1, 4, 3, -1],
         className: 'text-center'
       }
     ]
@@ -75,11 +75,13 @@ $(function () {
     <div class="block-content block-content-full">
       <!-- DataTables init on table by adding .js-dataTable-full class, functionality is initialized in js/pages/be_tables_datatables.min.js which was auto compiled from _js/pages/be_tables_datatables.js -->
       <div class="table-responsive">
-        <table id="role_list" class="table table-bordered table-striped table-vcenter js-dataTable-full">
+        <table id="menu_list" class="table table-bordered table-striped table-vcenter js-dataTable-full">
           <thead>
             <tr>
               <th class="text-center" style="width: 30px;">#</th>
+              <th>ID</th>
               <th>Name</th>
+              <th>parent</th>
               <th>Alias Name</th>
               <th>Left Menu</th>
               <th>Link</th>

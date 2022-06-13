@@ -85,7 +85,7 @@ DATABASES = {
         'USER': 'app',
         'PASSWORD': 'djangoapp',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '5431',
         'CONN_MAX_AGE': 300
     }
 }
@@ -115,13 +115,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
 
 # USE_I18N = True
 
 # USE_L10N = True
 
-# USE_TZ = True
+# USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

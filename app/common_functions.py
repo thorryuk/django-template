@@ -13,7 +13,7 @@ from Crypto.Cipher import AES
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.decorators import available_attrs
+# from django.utils.decorators import available_attrs
 from django.http import HttpResponseRedirect
 from functools import wraps
 from django.utils.timezone import now
@@ -212,7 +212,7 @@ def number_format(num, places=0):
 
 def validate_user_entry_menu(id_action_menu):
     def real_decorator(view_func):
-        @wraps(view_func, assigned=available_attrs(view_func))
+        @wraps(view_func)
         def wrap(request, *args, **kwargs):
 
             false_respon = HttpResponseRedirect(reverse('dashboard'))

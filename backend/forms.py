@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import CharField, TextInput, EmailField, ChoiceField, Select, Textarea, FileField, \
+from django.forms import BooleanField, CharField, TextInput, EmailField, ChoiceField, Select, Textarea, FileField, \
     DecimalField, FloatField
 from django.forms.fields import FloatField
 from django.forms.forms import Form
@@ -177,6 +177,7 @@ class NewRoleForm(forms.Form):
         required=True,
     )
 
+
 class ProfileForm(forms.Form):
 
     GENDER_CHOICES = (('male', 'Male',), ('female', 'Female',))
@@ -216,3 +217,41 @@ class ProfileForm(forms.Form):
         widget=Textarea(attrs={'id': 'email_signature', 'class': '', 'placeholder': ""}),
         required=True,
     )
+
+
+class MenuForm(forms.Form):
+    name = CharField(
+        error_messages={'required': 'Please fill Name Column'},
+        widget=TextInput(attrs={'id': 'name', 'class': '', 'placeholder': ""}),
+        required=True,
+    )
+
+    alias_name = CharField(
+        error_messages={'required': 'Please fill Name Column'},
+        widget=TextInput(attrs={'id': 'alias_name', 'class': '', 'placeholder': ""}),
+        required=False,
+    )
+
+    parent_menu = CharField(
+        error_messages={'required': 'Please fill Name Column'},
+        widget=TextInput(attrs={'id': 'parent_menu', 'class': '', 'placeholder': ""}),
+        required=False,
+    )
+
+    link = CharField(
+        error_messages={'required': 'Please fill Name Column'},
+        widget=TextInput(attrs={'id': 'link', 'class': '', 'placeholder': ""}),
+        required=False,
+    )
+
+    icon = CharField(
+        error_messages={'required': 'Please fill Name Column'},
+        widget=TextInput(attrs={'id': 'icon', 'class': '', 'placeholder': ""}),
+        required=False,
+    )
+
+    left_menu = BooleanField(required=False)
+
+    tree = BooleanField(required=False)
+
+

@@ -11,7 +11,7 @@ from django.utils.timezone import now
 
 
 class UserExtend(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='admin_user')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='admin_user', on_delete=models.DO_NOTHING)
     profile_pict_url = models.CharField(max_length=255, null=False)
     is_suspended = models.IntegerField(null=False, choices=((0, 'Not Suspended'), (1, 'Suspended')))
     sex = models.CharField(max_length=6, blank=True, choices=(('male', 'Male'),
@@ -55,8 +55,8 @@ class RoleGroup(models.Model):
 
 
 class RoleUser(models.Model):
-    role_group = models.ForeignKey(RoleGroup)
-    user = models.OneToOneField(settings.AUTH_USER_MODEL)
+    role_group = models.ForeignKey(RoleGroup, on_delete=models.DO_NOTHING)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING)
     create_date = models.DateField()
     create_by = models.CharField(max_length=300, null=True, blank=True)
     modify_date = models.DateField(null=True, blank=True)
@@ -65,7 +65,7 @@ class RoleUser(models.Model):
 
 class Menu(models.Model):
     name = models.CharField(max_length=50)
-    parent_menu = models.ForeignKey('self', related_name='parent', blank=True, null=True)
+    parent_menu = models.ForeignKey('self', related_name='parent', blank=True, null=True, on_delete=models.DO_NOTHING)
     link = models.CharField(max_length=400, null=True, blank=True)
     is_left_menu = models.BooleanField(null=False, blank=False, default=False)
     alias_name = models.CharField(max_length=30, null=True, blank=True)
@@ -75,5 +75,5 @@ class Menu(models.Model):
 
 
 class RoleMenu(models.Model):
-    menu = models.ForeignKey(Menu, null=True, blank=True)
-    role_group = models.ForeignKey(RoleGroup)
+    menu = models.ForeignKey(Menu, null=True, blank=True, on_delete=models.DO_NOTHING)
+    role_group = models.ForeignKey(RoleGroup , on_delete=models.DO_NOTHING)
