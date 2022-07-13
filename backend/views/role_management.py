@@ -7,6 +7,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.timezone import now
 from django_datatables_view.base_datatable_view import BaseDatatableView
+from django.contrib.auth.models import User
+
 
 from backend.forms import NewRoleForm
 from backend.models import RoleGroup, RoleUser, Menu, RoleMenu
@@ -134,6 +136,8 @@ def delete_role(request, id=0):
     sid = transaction.savepoint()
     try:
 
+        RoleMenu.objects.filter(role_group=role.id).delete()
+
         role.delete()
         transaction.savepoint_commit(sid)
     except IntegrityError as error:
@@ -251,11 +255,44 @@ def show_role_user(request, id=0):
     return render(request, 'backend/role-management/list-roleuser.html', data)
 
 
+def delete_role_user(request, id=0):
+
+    try:
+        role_user = RoleUser.objects.get(pk=id)
+    except RoleUser.DoesNotExist:
+        response = redirect(reverse('role_user', args=[role_user.role_group_id]))
+        response.set_cookie('error_msg', 'Role User doesn\'t exists', max_age=2)
+        return response
+
+    user = User.objects.get(pk=role_user.user_id)
+
+    # start transaction
+    sid = transaction.savepoint()
+    try:
+        user.is_active = False
+        user.save()
+
+        role_user.delete()
+        
+        transaction.savepoint_commit(sid)
+    except IntegrityError as error:
+        LOG.error(error)
+        transaction.savepoint_rollback(sid)
+
+        response = redirect(reverse('role_user', args=[role_user.role_group_id]))
+        response.set_cookie('error_msg', 'Failed delete role user ' + str(error), max_age=2)
+        return response
+
+    response = redirect(reverse('role_user', args=[role_user.role_group_id]))
+    response.set_cookie('success_msg', 'Success delete role user', max_age=2)
+    return response
+
+
 class GetRoleUserList(BaseDatatableView):
 
     def get_initial_queryset(self):
 
-        return RoleUser.objects.filter(role_group_id=int(self.kwargs.get('id'))).order_by('-id')
+        return RoleUser.objects.filter(role_group_id=int(self.kwargs.get('id')), user__is_superuser=False).order_by('-id')
 
     def prepare_results(self, qs):
 
@@ -268,6 +305,8 @@ class GetRoleUserList(BaseDatatableView):
                 item.user.first_name + ' ' + item.user.last_name,
                 '<a class="btn btn-info" href="' + reverse('user_detail', args=[item.user_id]) + '">'
                 '<i class="fa fa-search"></i></a> '
+                '<a class="btn btn-danger" href="' + reverse('role_user_delete', args=[item.id]) + '">'
+                '<i class="fa fa-times"></i></a> '
             ])
 
         return json_data
