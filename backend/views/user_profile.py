@@ -5,29 +5,42 @@ from django.contrib.auth.models import User
 from django.db import transaction, IntegrityError
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils.timezone import now
 
-from backend.forms import ProfileForm, ChangePasswordForm
-from app.common_functions import handle_uploaded_file_local, password_check
+
+from backend.forms import ChangePasswordForm, EditUserForm
+from app.common_functions import password_check, uploads
+from backend.models import RoleGroup
+
 
 LOG = logging.getLogger(__name__)
 
 
-def show_profile_user(request):
+def profile(request):
 
-    data = {'title': 'PPA | E-Reqruitment System - User Profile',
-            'sub_title': 'Profile',
-            'form': ProfileForm()}
+    id = request.user.id
 
     try:
-        user = User.objects.get(email=request.user.email)
-        data['user'] = user
+        user = User.objects.get(pk=id)
     except User.DoesNotExist:
-        return redirect(reversed('signout'))
+        response = redirect(reverse('user_list'))
+        response.set_cookie('error_msg', 'User Not Found', max_age=2)
+        return response
+
+    data = {
+        'title': settings.GLOBAL_TITLE + ' | Profile - ' + user.first_name + ' ' + user.last_name,
+        'sub_title': 'User Detail',
+        'user': user,
+        # 'active_menu': 'admin',
+        # 'sub_menu': 'admin_user',
+        'form': EditUserForm(),
+        'roles': RoleGroup.objects.filter()
+    }
 
     if request.method == 'POST':
-
-        form = ProfileForm(request.POST)
-        ext_user = user.nippon_user
+        form = EditUserForm(request.POST)
+        ext_user = user.admin_user
+        user_role = user.roleuser
 
         if form.is_valid():
 
@@ -37,15 +50,13 @@ def show_profile_user(request):
             last_name = str(cleaned_data.get('last_name')).lower()
             gender = cleaned_data.get('gender')
             address = str(cleaned_data.get('address'))
-            phone = str(cleaned_data.get('phone')).lower()
-            email_signature = str(cleaned_data.get('email_signature')).lower()
+            # phone = str(cleaned_data.get('phone')).lower()
+            # email_signature = str(cleaned_data.get('email_signature')).lower()
+            new_role = cleaned_data.get('roles')
+            profile_pict = user.admin_user.profile_pict_url
+            if 'images' in request.FILES:
+                profile_pict = uploads('profile-pictures', request.FILES['images'])
 
-            profile_pict = ''
-            if 'profile_pict' in request.FILES:
-                local_path = settings.BASE_DIR + '/static/profile_pictures/'
-                file_name = handle_uploaded_file_local(request.FILES['profile_pict'], local_path)
-                profile_pict = settings.BACKEND_HOST_PROTOCOL + request.META['HTTP_HOST'] + \
-                               settings.DEFAULT_PATH_PROFILE_PICT + file_name
 
             # start transaction
             sid = transaction.savepoint()
@@ -57,13 +68,17 @@ def show_profile_user(request):
 
                 ext_user.sex = gender
                 ext_user.address = address
-                ext_user.phone_number = phone
-                ext_user.email_signature = email_signature
-
-                if profile_pict != '' :
-                    ext_user.profile_pict_url = profile_pict
+                # ext_user.phone_number = phone
+                # ext_user.email_signature = email_signature
+                ext_user.profile_pict_url = profile_pict
 
                 ext_user.save()
+
+                if int(user_role.role_group_id) != int(new_role):
+                    user_role.role_group_id = new_role
+                    user_role.modify_date = now()
+                    user_role.modified_by = request.user.username
+                    user_role.save()
 
                 transaction.savepoint_commit(sid)
             except IntegrityError as error:
@@ -72,13 +87,15 @@ def show_profile_user(request):
 
             data['user'] = user
 
-            # response = render(request, 'pln/backend/admin_user_detail.html', data)
             response = redirect(reverse('profile'))
-            response.set_cookie('success_msg', 'Success Edited User Profile', max_age=2)
+            response.set_cookie('success_msg', 'Success Updated User', max_age=2)
 
             return response
-
-    return render(request, 'pln/backend/profile.html', data)
+        else:
+            response = redirect(reverse('user_list'))
+            response.set_cookie('error_msg', 'Error : ' + str(str(form.errors)), max_age=2)
+            return response
+    return render(request, 'backend/user-management/profile.html', data)
 
 
 def change_password(request):
