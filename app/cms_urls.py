@@ -21,10 +21,10 @@ from backend.views.forget_password import show_forget_password, do_reset_passwor
 from backend.views.js_api import get_city_by_country, get_user_by_role
 from backend.views.login import do_login, do_logout
 from backend.views.menu_management import GetMenuList, add_menu, detail_menu, show_menu
-from backend.views.role_management import show_role, GetRoleList, show_role_detail, delete_role, add_role, show_role_user, GetRoleUserList
+from backend.views.role_management import delete_role_user, show_role, GetRoleList, show_role_detail, delete_role, add_role, show_role_user, GetRoleUserList
 from backend.views.user_management import show_user_list, add_new_user, detail, delete, \
     user_activation, manual_active_deactive_user, reset_password
-from backend.views.user_profile import show_profile_user, change_password
+from backend.views.user_profile import profile, change_password
 from app.common_functions import validate_user_entry_menu
 
 
@@ -52,7 +52,7 @@ urlpatterns = [
 
     
     # User Profile
-    url(r'^profile/$', login_required(show_profile_user),name='profile'),
+    url(r'^profile/$', login_required(profile),name='profile'),
     url(r'^change-password/$', login_required(change_password),name='change_password'),
 
 
@@ -78,19 +78,14 @@ urlpatterns = [
 
 
     # Role Management
-    url(r'^administrator/role/list/$', login_required()(validate_user_entry_menu(47)(show_role)),
-        name='role_list'),
-    url(r'^administrator/role/user/(?P<id>[0-9]+)/$',
-        login_required()(validate_user_entry_menu(98)(show_role_user)), name='role_user'),
-    url(r'^administrator/role/user/ajax/(?P<id>[0-9]+)/$', GetRoleUserList.as_view(),
-        name='role_user_ajax'),
+    url(r'^administrator/role/list/$', login_required()(validate_user_entry_menu(47)(show_role)), name='role_list'),
+    url(r'^administrator/role/user/(?P<id>[0-9]+)/$', login_required()(validate_user_entry_menu(98)(show_role_user)), name='role_user'),
+    url(r'^administrator/role/user/ajax/(?P<id>[0-9]+)/$', GetRoleUserList.as_view(), name='role_user_ajax'),
+    url(r'^administrator/role/user/delete/(?P<id>[0-9]+)/$', login_required()(validate_user_entry_menu(108)(delete_role_user)), name='role_user_delete'),
     url(r'^administrator/role/list/ajax/$', GetRoleList.as_view(), name='role_list_ajax'),
-    url(r'^administrator/role/detail/(?P<id>[0-9]+)/$',
-        login_required()(validate_user_entry_menu(49)(show_role_detail)), name='role_detail'),
-    url(r'^administrator/role/delete/(?P<id>[0-9]+)/$',
-        login_required()(validate_user_entry_menu(97)(delete_role)), name='role_delete'),
-    url(r'^administrator/role/add/$', login_required()(validate_user_entry_menu(48)(add_role)),
-        name='add_role'),
+    url(r'^administrator/role/detail/(?P<id>[0-9]+)/$', login_required()(validate_user_entry_menu(49)(show_role_detail)), name='role_detail'),
+    url(r'^administrator/role/delete/(?P<id>[0-9]+)/$', login_required()(validate_user_entry_menu(97)(delete_role)), name='role_delete'),
+    url(r'^administrator/role/add/$', login_required()(validate_user_entry_menu(48)(add_role)), name='add_role'),
 
     
     # Menu Management
