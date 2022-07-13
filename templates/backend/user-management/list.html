@@ -45,7 +45,16 @@
     </div>
     {% for data in users %}
     <div class="col-md-6 col-xl-3">
-      <a class="block block-rounded block-link-pop text-center" href="{% url 'user_detail' id=data.id %}">
+      <a class="block block-rounded block-link-pop text-center ribbon {% if data.is_active is True %} ribbon-success {% else %} ribbon-danger {% endif %}" href="{% url 'user_detail' id=data.id %}">
+        
+        <div class="ribbon-box">
+        {% if data.is_active is True %}
+          Active
+        {% else %}
+          Deactive
+        {% endif %}
+        </div>
+          
         <div class="block-content block-content-full">
           <img class="img-avatar img-user" src="{{data.admin_user.profile_pict_url}}" alt="">
         </div>

@@ -1,5 +1,7 @@
 from calendar import HTMLCalendar
+from curses.ascii import US
 import datetime
+from distutils.log import error
 import hashlib
 import logging
 from os import urandom
@@ -14,6 +16,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction, IntegrityError
 from django.shortcuts import render, redirect, HttpResponse
+from django.http import JsonResponse
 from django.template import Context
 from django.template.loader import get_template
 from django.urls import reverse
@@ -94,7 +97,7 @@ def add_new_user(request):
                 response.set_cookie('error_msg', 'User already exists', max_age=2)
                 return response
 
-            profile_pict = ''
+            profile_pict = '/static/default/avatar.jpg'
             if 'images' in request.FILES:
                 profile_pict = uploads('profile-pictures', request.FILES['images'])
 
@@ -261,31 +264,42 @@ def detail(request, id=0):
 
 
 def delete(request, id=0):
+    if request.method == "DELETE":
+        try:
+            user = User.objects.get(pk=id)
+            if RoleUser.objects.filter(user_id=id).exists() == True:
+                ret = {'error':'User still have any other relation.'}
+                return JsonResponse(ret, safe=False, status=500)
+        except User.DoesNotExist:
+            ret = {'error':'User Not Found.'}
+            return JsonResponse(ret, safe=False)
 
-    try:
-        user_remove = User.objects.get(pk=id)
-    except User.DoesNotExist:
-        return redirect(reverse('user_list'))
+        try:
+            user_ext = UserExtend.objects.get(user_id=id)
+        except UserExtend.DoesNotExist:
+            ret = {'error':'User Extend Not Found.'}
+            return JsonResponse(ret, safe=False)
 
-    sid = transaction.savepoint()
-    try:
-        user_remove.is_active = False
-        user_remove.save()
+        # start transaction
+        sid = transaction.savepoint()
+        try:
 
-        pln_user = user_remove.pln_user
-        pln_user.is_deleted = True
-        pln_user.save()
-    except IntegrityError as integrity_error:
-        LOG.error(integrity_error)
-        transaction.savepoint_rollback(sid)
+            user_ext.delete()
+            user.delete()
 
-        response = redirect(reverse('user_list'))
-        response.set_cookie('error_msg', 'Failed Deleted User, Unknown Error', max_age=2)
-        return response
+            transaction.savepoint_commit(sid)
+        except IntegrityError as error:
+            LOG.error(error)
+            transaction.savepoint_rollback(sid)
 
-    response = redirect(reverse('user_list'))
-    response.set_cookie('success_msg', 'Success Deleted User', max_age=2)
-    return response
+            ret = {'error':'Failed to Delete User.'}
+            return JsonResponse(ret, safe=False)
+
+        ret = {'success': 200}
+    else:
+        ret = {'error': 'Invalid parameter!'}
+
+    return JsonResponse(ret, safe=False)
 
 
 def generate_act_key(key):
@@ -463,3 +477,85 @@ def reset_password(request, id=0):
 
     response.set_cookie('success_msg', "Success reset password user", max_age=2)
     return response
+
+
+def profile(request):
+
+    id = request.user.id
+
+    try:
+        user = User.objects.get(pk=id)
+    except User.DoesNotExist:
+        response = redirect(reverse('user_list'))
+        response.set_cookie('error_msg', 'User Not Found', max_age=2)
+        return response
+
+    data = {
+        'title': settings.GLOBAL_TITLE + ' | Profile - ' + user.first_name + ' ' + user.last_name,
+        'sub_title': 'User Detail',
+        'user': user,
+        'active_menu': 'admin',
+        'sub_menu': 'admin_user',
+        'form': EditUserForm(),
+        'roles': RoleGroup.objects.filter()
+    }
+
+    if request.method == 'POST':
+        form = EditUserForm(request.POST)
+        ext_user = user.admin_user
+        user_role = user.roleuser
+
+        if form.is_valid():
+
+            cleaned_data = form.clean()
+
+            first_name = str(cleaned_data.get('first_name')).lower()
+            last_name = str(cleaned_data.get('last_name')).lower()
+            gender = cleaned_data.get('gender')
+            address = str(cleaned_data.get('address'))
+            # phone = str(cleaned_data.get('phone')).lower()
+            # email_signature = str(cleaned_data.get('email_signature')).lower()
+            new_role = cleaned_data.get('roles')
+            profile_pict = user.admin_user.profile_pict_url
+            if 'images' in request.FILES:
+                profile_pict = uploads('profile-pictures', request.FILES['images'])
+
+
+            # start transaction
+            sid = transaction.savepoint()
+
+            try:
+                user.first_name = first_name
+                user.last_name = last_name
+                user.save()
+
+                ext_user.sex = gender
+                ext_user.address = address
+                # ext_user.phone_number = phone
+                # ext_user.email_signature = email_signature
+                ext_user.profile_pict_url = profile_pict
+
+                ext_user.save()
+
+                if int(user_role.role_group_id) != int(new_role):
+                    user_role.role_group_id = new_role
+                    user_role.modify_date = now()
+                    user_role.modified_by = request.user.username
+                    user_role.save()
+
+                transaction.savepoint_commit(sid)
+            except IntegrityError as error:
+                LOG.error(error)
+                transaction.savepoint_rollback(sid)
+
+            data['user'] = user
+
+            response = redirect(reverse('user_detail', args=[id]))
+            response.set_cookie('success_msg', 'Success Updated User', max_age=2)
+
+            return response
+        else:
+            response = redirect(reverse('user_list'))
+            response.set_cookie('error_msg', 'Error : ' + str(str(form.errors)), max_age=2)
+            return response
+    return render(request, 'backend/user-management/detail.html', data)
