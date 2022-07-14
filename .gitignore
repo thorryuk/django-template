@@ -12,6 +12,7 @@ backend/migrations/__pycache__/
 logs/
 
 *.pyc
+.env
 
 static/mail_attachments/
 static/uploads/

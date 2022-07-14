@@ -11,16 +11,21 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import environ
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 
+# Load ENV Data
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '5q2%qcy3m7voo1xu2q7qd2cfjckg!-2#4(jv_o!n5lx7o(@f23'
+# SECRET_KEY = '5q2%qcy3m7voo1xu2q7qd2cfjckg!-2#4(jv_o!n5lx7o(@f23'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -82,11 +87,11 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'db_app',
-        'USER': 'app',
-        'PASSWORD': 'djangoapp',
-        'HOST': 'localhost',
-        'PORT': '5431',
+        'NAME': env("DB_NAME"),
+        'USER': env("DB_USER"),
+        'PASSWORD': env("DB_PASSWORD"),
+        'HOST': env("DB_HOST"),
+        'PORT': env("DB_PORT"),
         'CONN_MAX_AGE': 300
     }
 }
@@ -144,4 +149,4 @@ BACKEND_HOST_PROTOCOL = 'http'
 
 DEFAULT_MAIL_FROM = 'no-reply@pln.co.id'
 
-GLOBAL_TITLE = 'DJANGO TEMPLATE'
+GLOBAL_TITLE = env("GLOBAL_TITLE")
